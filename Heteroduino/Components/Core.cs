@@ -29,7 +29,6 @@ namespace Heteroduino
         Att_Core att;
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
-        private List<string> avaporti;
         private List<string> avaporti4DisplayList;
 
         public PointF baraks;
@@ -44,7 +43,6 @@ namespace Heteroduino
 
         List<string> outrx = new List<string>();
 
-        public string _pairTag = "No TX.Component";
 
         public string PortName
         {
@@ -72,7 +70,6 @@ namespace Heteroduino
             att = this.m_attributes as Att_Core;
         }
 
-        public string Sentcommand { get; set; }
         protected override Bitmap Icon => Resources.arduilogo;
         public override Guid ComponentGuid => new Guid("{2edff0e3-63d0-495f-82ff-83edb73656f8}");
 
@@ -121,11 +118,7 @@ namespace Heteroduino
             }
         }
 
-        public string PairTag
-        {
-            get { return _pairTag; }
-            set { _pairTag = value; }
-        }
+      
 
         public void Resetports()
         {
@@ -182,7 +175,7 @@ namespace Heteroduino
     foreach (var s in avaporti4DisplayList)
                 Menu_AppendItem(menu, s, portselect, true, PortName.StartsWith(s));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Menu_AppendItem(menu, " -- No Appropriate Port --");
             }
@@ -311,7 +304,7 @@ namespace Heteroduino
                 _portName = GetValue("Port", "No-Port");
                 Serial();
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -368,9 +361,12 @@ namespace Heteroduino
             string SerialPortToFind = "Arduino"; // Change this to your desired device name
             ardiporti = new List<int>();
             avaporti4DisplayList = new List<string>();
-
+            var AvailablePorts =
+                SerialPort.GetPortNames().ToList();
+            
             using (var entitySearcher = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_PnPEntity WHERE Caption LIKE '%{SerialPortToFind}%'"))
             {
+               
                 foreach (var entity in entitySearcher.Get())
                 {
                     try
@@ -381,7 +377,7 @@ namespace Heteroduino
                         string desc = entity["Description"].ToString();
                         if (desc.Contains("Arduino"))
                         {
-                            var portindex = avaporti.IndexOf(deviceId);
+                            var portindex = AvailablePorts.IndexOf(deviceId);
                             avaporti4DisplayList[portindex] = $"{deviceId}: {desc}";
                             ardiporti.Add(portindex);
                             if (desc.Contains("Mega"))
@@ -392,7 +388,7 @@ namespace Heteroduino
                         }
 
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return false;
                     }

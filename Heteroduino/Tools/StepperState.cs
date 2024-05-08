@@ -1,45 +1,44 @@
 ﻿namespace Heteroduino
 {
-    internal struct StepperState
+    public struct StepperState 
     {
-        private  int _position;
-        private  int _speed;
-        private  int _acceleration;
-        private  int _pin;
-        private  int code;
 
-        public int Position => _position;
-        public int Speed => _speed;
-        public int Acceleration => _acceleration<5?_acceleration:-1;
-        public int Pin => _pin;
-        public int Code => code;
+        public readonly int Position; 
+        public readonly int Speed;
+        public readonly int Acceleration ;
+        public readonly int Pin;
+        public readonly int Code;
         public StepperState(int data)
         {
-            _pin = MotorDecompose(data, out _position, out _speed, out _acceleration);
-            code = data;
+            Pin = MotorDecompose(data, out Position, out Speed, out Acceleration);
+            if (Acceleration >= 5) Acceleration = -1;
+            Code = data;
         }
+
+        public override bool Equals(object obj) => obj is StepperState s && s.Pin == this.Pin;
+        public override int GetHashCode() => Pin;
         
+
         public StepperState(int pin, int pos,int spd, int acc)
         {
-            _position = pos;
-            _speed = spd;
-            _acceleration = acc;
-            _pin = pin;
-            code = MotorCombine(pin,pos,spd,acc);
+            Position = pos;
+            Speed = spd;
+            Acceleration = acc;
+            Pin = pin;
+            Code = MotorCombine(pin,pos,spd,acc);
         }
 
         public enum Motorstate{Jack, Reset,Remove}
         public StepperState(int pin, Motorstate state)
         {
-            _position = 0;
-            _speed = 0;
-            _acceleration =(int)state+ 5;
-            _pin = pin;
-            code =MotorCombine(pin,_position,_speed,_acceleration);
+            Position = 0;
+            Speed = 0;
+            Acceleration =(int)state+ 5;
+            Pin = pin;
+            Code =MotorCombine(pin,Position,Speed,Acceleration);
            
         }
 
-        public void Remove() => _acceleration = 7;
             
 
         public static int Remove(int pin) =>

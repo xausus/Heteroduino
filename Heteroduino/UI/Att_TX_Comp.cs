@@ -87,7 +87,7 @@ namespace Heteroduino
             {
                 base.Render(canvas, graphics, channel);
              
-                if (comp.IGHCore == null) return;
+                if (comp.CoreBase == null) return;
                 _txPairGrip = new PointF(this.Bounds.X + Bounds.Width / 2, Bounds.Y );
                 var rectangle1 = GH_Convert.ToRectangle(comp.CoreBase.Attributes.Bounds);
                 var color = this.Selected? GH_Skin.wire_selected_a: GH_Skin.wire_default;

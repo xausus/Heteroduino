@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
 using System.Windows.Forms;
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 using Heteroduino.Properties;
@@ -34,13 +35,10 @@ namespace Heteroduino
             "octuple"
         };
 
-        public IGH_DocumentObject _core;
-        private Att_Core attcore;
+        private Core _core;
         private List<string> comouot = new List<string>();
-        private string lastSTP = "";
-        private SerialPort serial;
-        private int sonarcount;
-        private Dictionary<int, int> StepDic;
+        private SerialPort serial=>CoreBase.serial;
+  
 
         /// <summary>
         ///     Each implementation of GH_Component must provide a public
@@ -59,44 +57,36 @@ namespace Heteroduino
         //       public IGH_DocumentObject CorePair { get; private set; }
 
         protected override Bitmap Icon => Resources.TX;
+        
+        void OnCoreExpire(IGH_DocumentObject sender, GH_SolutionExpiredEventArgs ghSolutionExpiredEventArgs)
+        {
+            var mm = '%' + string.Concat(StepperStack.Select(i => i.Code.ToString("X8")));
+            ForceSerialsend(mm);
+        }
         public override Guid ComponentGuid => new Guid("{757a5edf-c9a5-405f-91bf-178c15daa58e}");
 
         /// <summary>
         /// ---------------------------------
         /// </summary>
-        public Core CoreBase;
-        public IGH_DocumentObject IGHCore
+        
+        public Core CoreBase
         {
             get => _core;
             set
             {
-                if (value == null)
-                {
-                    InvokeSetter(IGHCore, "PairTxIGH", null);
-                    InvokeSetter(IGHCore, "PairTag", "");
-                    IGHCore = null;
-                    attcore = null;
-                    serial = null;
-                    return;
-                }
-                _core = value;
-                CoreBase = _core as Core;
-                if (CoreBase.IGHTX == this) return;
-                IGH_Component Null = null;
-                // InvokeSetter(CoreBase.IGHTX, "IGHCore", Null);
-                //   InvokeSetterSafe(IGHCore, "TxPaired", this);
-                var guid = $"{this.InstanceGuid.ToString().Substring(0, 5)}..";
-                Message = guid;
+                
+               if(_core==value) return;
+               if(_core!=null)
+                   _core.SolutionExpired -= this.OnCoreExpire;
+               _core = value;
+               if(value!=null)
+                   _core.SolutionExpired += this.OnCoreExpire;
 
-                InvokeSetterSafe(IGHCore, "PairTag", $"→ {guid}");
-                attcore = IGHCore.Attributes as Att_Core;
-                serial = CoreBase.serial;
-                IGHCore.ExpireSolution(true);
-                // CoreBase.IGHTX.ExpireSolution(true);
             }
         }
 
 
+        
 
         public override void AddedToDocument(GH_Document document)
         {
@@ -117,16 +107,14 @@ namespace Heteroduino
 
             pManager.AddTextParameter("Direct Commands", "DC", "Commands to sent to Arduino's serial port directly",
                 GH_ParamAccess.item);
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 3; i++)
                 pManager[i].Optional = true;
-
-
+            
+            
             var sonarset = pManager[x] as Param_Integer;
             sonarset.AddNamedValue("No Ultrasonic Sensor", 0);
-
-
+            
             var maxsonar = Megaset ? 8 : 3;
-
             for (var i = 0; i < maxsonar; i++)
                 sonarset.AddNamedValue($"{sonartags[i]}  Sonar [+PIN: {(Megaset ? i + 22 : DigiUno[i])}]", i + 1);
         }
@@ -182,13 +170,20 @@ namespace Heteroduino
             pManager.Register_StringParam("Serial-Out ", "Out", "Messages sending to Arduino board", GH_ParamAccess.list);
         }
 
-        public bool Serialsend(string msg)
+        public override void RemovedFromDocument(GH_Document document)
+        {
+            if (_core != null)
+                _core.SolutionExpired -= OnCoreExpire;
+            base.RemovedFromDocument(document);
+        }
+
+        
+        public bool ForceSerialsend(string msg)
         {
             comouot.Add(msg);
             try
             {
                 if (!serial.IsOpen) AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The port is closed");
-                CoreBase.Sentcommand = msg;
                 serial.WriteLine(msg);
             }
             catch (Exception)
@@ -198,7 +193,6 @@ namespace Heteroduino
 
         protected override void BeforeSolveInstance()
         {
-            StepDic = new Dictionary<int, int>();
 
             comouot = new List<string>();
         }
@@ -232,49 +226,49 @@ namespace Heteroduino
                 }
                 ccbek += '*';
                 if (ccbek.Length > 2)
-                    Serialsend(ccbek);
+                    ForceSerialsend(ccbek);
             }
 
             //===========================================================Motor===============================
             var steppers = new List<int>();
-            StepDic.Clear();
-            if (DA.GetDataList(1, steppers))
-            {
-                foreach (var i in steppers)
-                {
-                    var m = new StepperState(i);
-
-                    var pin = m.Pin;
-                    if (!StepDic.ContainsKey(pin)) StepDic.Add(pin, i);
-                    else
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                            $"Stepper #some motors may have more than one data");
-                }
-
-                var mm = '%' + string.Concat(StepDic.Values.Select(i => i.ToString("X8")));
-                if (lastSTP == mm || mm == "%") return;
-                lastSTP = mm;
-                Serialsend(mm);
-            }
+            if (DA.GetDataList(1, steppers)) 
+                StepperStack.UnionWith(steppers.Select(i=>new StepperState(i)));
 
 
             //==============================================Sonar===========================================
             var sn = 0;
             var maxsonar = Megaset ? 8 : 3;
-            if (DA.GetData(2, ref sn) && sn != sonarcount && serial?.IsOpen == true)
-                if (sn <= maxsonar && sn != sonarcount)
-                    Serialsend((sonarcount = sn).ToString("@0"));
-                else
+            if (DA.GetData(2, ref sn))
+            {
+                
+                if (sn > maxsonar)
+
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                        $"You can not use more than {maxsonar} Ultrasonic-Sensors");
+                        $"You can not use more than {maxsonar} Ultrasonic-Sensors or ");
+                else
+          
+                 if   (sn != NumberOfSonars && serial.IsOpen)
+                {
+                    UpdateSonars(sn);
+                    NumberOfSonars = sn;
+                }
+            
+
+                
+            }  
+              
 
             //===================================================FreeSyntax=================================
             var DC = "";
             if (DA.GetData(3, ref DC) && DC != "")
-                Serialsend(DC);
+                ForceSerialsend(DC);
 
             DA.SetDataList(0, comouot);
         }
+
+        public int NumberOfSonars = 0;
+        public HashSet<StepperState> StepperStack = new HashSet<StepperState>();
+        void UpdateSonars(int n)=> ForceSerialsend(n.ToString("@0"));
 
         /// <summary>
         /// ---------------------------------------------------------pairing---------------
@@ -284,19 +278,18 @@ namespace Heteroduino
         {
 
             var level = Attributes.Pivot.Y;
-            var os = OnPingDocument().Objects.Where(i => i is Core).ToList();
+            var os = OnPingDocument().Objects.Where(i => i is Core)
+                .Cast<Core>().ToList();
             if (os.Count == 0)
 
             {
-                IGHCore = null;
+                CoreBase = null;
                 return false;
             }
             var levelDif = os.Select(i => Math.Abs(i.Attributes.Pivot.Y - level)).ToList();
             var index = levelDif.IndexOf(levelDif.Min());
 
-            IGHCore = os[index];
-
-            if (attcore != null) attcore.TX_State = true;
+            CoreBase = os[index];
             if (GetValue("kick", 0) > 0) CoreBase?.ExpireSolution(true);
             return true;
         }

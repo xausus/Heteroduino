@@ -68,7 +68,7 @@ namespace Heteroduino
         public static bool ToArduino(string command,GH_Document doc)
         {
             var tx = FindTX(doc);
-           return tx?.Serialsend(command) ?? false;
+           return tx?.ForceSerialsend(command) ?? false;
          
         }
 
