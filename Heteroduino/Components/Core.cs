@@ -68,6 +68,7 @@ namespace Heteroduino
                 " \n \n-Zoom and click to refresh RX while the engine is off\n-Double-Click to reset the port settings")
         {
             att = this.m_attributes as Att_Core;
+        
         }
 
         protected override Bitmap Icon => Resources.arduilogo;
@@ -104,7 +105,6 @@ namespace Heteroduino
             }
         }
 
-        public bool Megaset { get; private set; }
 
         public int TimingMode
         {
@@ -319,22 +319,34 @@ namespace Heteroduino
         {
 
 
-            // Megaset = GetValue("mega", false);
-            // enable = PortName.Contains("Arduino");
-            // att.Rx_led = enable && !att.Rx_led;
-            // var temp = new List<string>();
-            // temp.AddRange(SteppersMessage.Select(i => i.ToString()));
-            // if (serial != null && serial.IsOpen)
-            //     DA.SetDataList(0, GetValue("pure", true) ? Pure_Rx : Rxs);
-            //
-            //
-            // if (TimingMode < 0) return;
+            enable = PortName.Contains("Arduino");
+            att.Rx_led = enable && !att.Rx_led;
+            var temp = new List<string>();
+            temp.AddRange(SteppersMessage.Select(i => i.ToString()));
+            if (serial != null && serial.IsOpen)
+                DA.SetDataList(0, GetValue("pure", true) ? Pure_Rx : Rxs);
+            
+            
+            if (TimingMode < 0) return;
 
-          //  OnPingDocument()?.ScheduleSolution(speedbank[TimingMode], ScheduleCallback);
+           OnPingDocument()?.ScheduleSolution(speedbank[TimingMode], ScheduleCallback);
         }
 
 
         private void ScheduleCallback(GH_Document doc) => this.ExpireSolution(false);
+
+
+
+        private bool? _megamode;
+        public bool MegaMode
+        {
+            get => _megamode??=this.GetValue("megamode",false);
+            set
+            {
+                _megamode = value;
+                SetValue("megamode",value);
+            }
+        }
 
 
         public override void RemovedFromDocument(GH_Document document) => close();

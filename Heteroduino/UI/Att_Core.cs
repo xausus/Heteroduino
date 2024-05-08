@@ -45,7 +45,7 @@ namespace Heteroduino
         protected override void Layout()
         {
            
-            if (comp.Megaset)
+            if (comp.MegaMode)
                 LayOut_Mega();
             else
                 LayOut_Uno();
@@ -188,7 +188,7 @@ namespace Heteroduino
                 return;
             }
            
-            if (comp.Megaset)
+            if (comp.MegaMode)
                 Render_Mega(graphics,zoom );
             else
                 Render_Uno(graphics,zoom);
@@ -289,7 +289,7 @@ namespace Heteroduino
 
             var index = rects.FindIndex(i => i.Contains(k));
             if (index >= 0) comp.Index = index;
-            Owner.ExpireSolution(true);
+            Owner.ExpirePreview(true);
             return base.RespondToMouseDown(sender, e);
         }
 

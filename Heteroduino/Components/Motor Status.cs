@@ -14,7 +14,7 @@ namespace Heteroduino
         /// Initializes a new instance of the MotorStatus class.
         /// </summary>
         public MotorStatus()
-            : base("Motor Status Interpreter","SMS.Heteroduino", 
+            : base("Stepper Motor Status","SMS", 
                 "Interpret the feedback of stepper motors gotten from RX")
         {
 

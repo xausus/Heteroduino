@@ -107,7 +107,7 @@ namespace Heteroduino
 
             pManager.AddTextParameter("Direct Commands", "DC", "Commands to sent to Arduino's serial port directly",
                 GH_ParamAccess.item);
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < 4; i++)
                 pManager[i].Optional = true;
             
             
@@ -119,7 +119,7 @@ namespace Heteroduino
                 sonarset.AddNamedValue($"{sonartags[i]}  Sonar [+PIN: {(Megaset ? i + 22 : DigiUno[i])}]", i + 1);
         }
 
-        public bool Megaset => CoreBase?.Megaset == true;
+        public bool Megaset => CoreBase?.MegaMode == true;
 
 
         public override bool AppendMenuItems(ToolStripDropDown menu)
