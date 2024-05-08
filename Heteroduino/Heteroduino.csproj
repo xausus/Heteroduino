@@ -34,35 +34,40 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AttArduino.cs" />
-    <Compile Include="Attri Comps.cs">
+    <Compile Include="Components\PINState.cs" />
+    <Compile Include="Templates\HetroBase_Component.cs" />
+    <Compile Include="Templates\H_Component.cs" />
+    <Compile Include="Tools\StepperState.cs" />
+    <Compile Include="Templates\RXF.cs" />
+    <Compile Include="UI\Att_Core.cs" />
+    <Compile Include="UI\Att_H_Comp.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Attri Tx.cs" />
-    <Compile Include="Att_SMS.cs" />
-    <Compile Include="CC.cs" />
+    <Compile Include="UI\Att_TX_Comp.cs" />
+    <Compile Include="Components\CC.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="_CCX Components.cs" />
-    <Compile Include="Core.cs" />
-    <Compile Include="Hds.cs" />
-    <Compile Include="Motor Status.cs" />
+    <Compile Include="Templates\M_Components.cs" />
+    <Compile Include="Components\Core.cs" />
+    <Compile Include="Tools\Hds.cs" />
+    <Compile Include="Components\Motor Status.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="RX.cs" />
-    <Compile Include="Stepper.cs" />
-    <Compile Include="Tools.cs" />
+    <Compile Include="Components\RX.cs" />
+    <Compile Include="Components\Stepper.cs" />
+    <Compile Include="Tools\Tools.cs" />
     <Compile Include="HeteroduinoInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TX.cs" />
+    <Compile Include="Components\TX.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -187,6 +192,7 @@
     <Reference Include="System.Windows.Forms.DataVisualization.Design" />
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -208,6 +214,7 @@ Erase "$(TargetPath)"</PostBuildEvent>
     </StartArguments>
     <StartAction>Program</StartAction>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <Import Project="..\packages\RhinoCommon.7.0.20314.3001\build\RhinoCommon.targets" Condition="Exists('..\packages\RhinoCommon.7.0.20314.3001\build\RhinoCommon.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -7,10 +7,10 @@ using static Heteroduino.Tools;
 
 namespace Heteroduino
 {
-    public abstract class CCX_Components : GH_Component
+    public abstract class M_Components : HetroBase_Component
     {
-        public CCX_Components(string name, string nickname, string description,int P)
-            : base(name, nickname, description, "Heteroptera", "Arduino")
+        public M_Components(string name, string nickname, string description,int P)
+            : base(name, nickname, description)
         {
           
             Connector =P;
@@ -21,7 +21,7 @@ namespace Heteroduino
         private int Connector;
       
         public readonly string MegaStr = "Mega";
-        public override GH_Exposure Exposure => GH_Exposure.secondary;
+     
 
         public bool Mega
         {
@@ -42,16 +42,13 @@ namespace Heteroduino
 
    
  internal GH_Document doc;
- public bool Connect()
+ public virtual bool Connect()
  {
    Mega= checkmegatx(this);
     // Message = Params.Output[0].Recipients.Count.ToString();
                 return     Connectparam<TX>(doc,Params.Output[0] ,Connector);
-          
-
+                
  }
-
-  public override void CreateAttributes() => m_attributes = new Attri_ArdiComps(this);
 
          public void Megaswitch(object sender, EventArgs e)
         {
@@ -61,9 +58,6 @@ namespace Heteroduino
          ExpireSolution(true);
         }
 
-        
-
     }
-
    
 }

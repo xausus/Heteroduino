@@ -1,33 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using Grasshopper;
 using Grasshopper.GUI;
 using Grasshopper.Kernel.Attributes;
-using Grasshopper.Kernel.Special;
 
 namespace Heteroduino
 {
     
-    public class Attri_Tx : GH_ComponentAttributes
+    public class Att_TX_Comp : GH_ComponentAttributes
     {
         private TX comp;
-        public Attri_Tx(TX component)
+        public Att_TX_Comp(TX component)
             : base(component)
         {
             comp = component;
         
         }
-
-
         private PointF _txPairGrip;
-
-      
-
 
         private void RenderCenterCircle(Graphics g, PointF c, float r)
         {
@@ -68,9 +60,8 @@ namespace Heteroduino
                 new PointF(anchor.X,top),
                 new PointF(anchor.X, anchor.Y - gap)
             };
-        }
-
-    else
+            }
+            else
 
             {
                 var bot= (box.Bottom > anchor.Y+height ? box.Bottom : anchor.Y+height) + ofs;
@@ -85,10 +76,9 @@ namespace Heteroduino
 
 
             var path = GH_GDI_Util.FilletPolyline(list.ToArray(), 15f);
-                g.DrawPath(pen, path);
-              
-                path.Dispose();
-                pen.Dispose();
+            g.DrawPath(pen, path);
+            path.Dispose();
+            pen.Dispose();
         }
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
@@ -99,14 +89,14 @@ namespace Heteroduino
              
                 if (comp.IGHCore == null) return;
                 _txPairGrip = new PointF(this.Bounds.X + Bounds.Width / 2, Bounds.Y );
-
                 var rectangle1 = GH_Convert.ToRectangle(comp.CoreBase.Attributes.Bounds);
-                var color = Utility.TernaryIf<Color>(this.Selected, GH_Skin.wire_selected_a, GH_Skin.wire_default);
+                var color = this.Selected? GH_Skin.wire_selected_a: GH_Skin.wire_default;
                 if (this.Owner.Locked)
                     color = Color.FromArgb(50, color);
-                    RenderPairedConnection(graphics, _txPairGrip,Bounds.Height,rectangle1 , color);
+                RenderPairedConnection(graphics, _txPairGrip,Bounds.Height,rectangle1 , color);
                 return;
             }
+
             if (channel != GH_CanvasChannel.Objects)
             {
                 base.Render(canvas, graphics, channel);
@@ -120,15 +110,7 @@ namespace Heteroduino
             GH_Skin.palette_error_standard = Hds.Error;
             GH_Skin.palette_error_selected = Hds.Selected;
 
-
             base.Render(canvas, graphics, channel);
-
-         /*   if (canvas.Viewport.Zoom> .7)
-                graphics.DrawString(comp.CoreBase?.Attributes.InstanceGuid + " \n"
-                    + comp.Attributes.InstanceGuid+"\n"
-                    +comp.CoreBase?.PairTx?.Attributes.InstanceGuid, GH_FontServer.ConsoleSmall, Brushes.Teal,
-                    new PointF(Bounds.X+10,Bounds.Top-40));
-*/
 
             GH_Skin.palette_hidden_standard =Hds. StyleStandard;
             GH_Skin.palette_hidden_selected = Hds.StyleStyleSelected;
@@ -142,10 +124,9 @@ namespace Heteroduino
         public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
             if(e.Button!=MouseButtons.Left)
-            return base.RespondToMouseDoubleClick(sender, e);
+                return base.RespondToMouseDoubleClick(sender, e);
             comp.RefreshSrources();
             comp.ExpireSolution(true);
-
             return GH_ObjectResponse.Release;
         }
     }

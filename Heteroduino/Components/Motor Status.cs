@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 
 namespace Heteroduino
 {
-    public class MotorStatus : GH_Component,RXF
+
+
+
+    public class MotorStatus : H_Component
     {
         /// <summary>
         /// Initializes a new instance of the MotorStatus class.
         /// </summary>
         public MotorStatus()
             : base("Motor Status Interpreter","SMS.Heteroduino", 
-                "Interpret the feedback of stepper motors gotten from RX",
-                "Heteroptera", "Arduino")
+                "Interpret the feedback of stepper motors gotten from RX")
         {
 
         }
-        public override GH_Exposure Exposure => GH_Exposure.tertiary;
+
         public void Addsource() => Tools.GetSource(OnPingDocument(), Params.Input[0], 0);
 
         /// <summary>
@@ -123,7 +124,6 @@ namespace Heteroduino
         
         protected override System.Drawing.Bitmap Icon => Properties.Resources.MF;
 
-        public override void CreateAttributes() => m_attributes = new Attri_ArdiComps(this);
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
@@ -132,9 +132,6 @@ namespace Heteroduino
         }
 
         public override Guid ComponentGuid => new Guid("{1227c6e7-e4cf-4895-9567-9c63ac25ccb7}");
-        public void Doubleclick()
-        {
-
-        }
+     
     }
 }

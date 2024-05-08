@@ -13,7 +13,7 @@ using RectangleF = System.Drawing.RectangleF;
 
 namespace Heteroduino
 {
-    public class AttArduinoCore : GH_ComponentAttributes
+    public class Att_Core : GH_ComponentAttributes
     {
         private readonly Color basecolor = Hds.ardicolorboard;
         private readonly Core comp;
@@ -25,7 +25,7 @@ namespace Heteroduino
         private bool enable;
         private List<PointF> nodes;
         private PointF portnametag;
-        public AttArduinoCore(Core component) : base(component){comp = component;}
+        public Att_Core(Core component) : base(component){comp = component;}
         public bool Rx_led { get; set; }
         public bool Tx_led { get; private set; }
         public bool TX_State
@@ -178,22 +178,22 @@ namespace Heteroduino
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
 
-
+ var zoom = canvas.Viewport.Zoom;
             if (channel != GH_CanvasChannel.Objects)
             {
                 base.Render(canvas, graphics, channel);
-                if(channel==GH_CanvasChannel.Overlay)
-                    graphics.DrawString("Heteroduino Beta 2.80\nReleased for TADA.X 2018",
-               GH_FontServer.ConsoleSmall, Brushes.White, new PointF(portnametag.X, portnametag.Y + 30));
+                if(channel==GH_CanvasChannel.Overlay && zoom>.7)
+                    graphics.DrawString("Heteroduino Beta 2.91",
+               GH_FontServer.ConsoleSmall, Brushes.White, new PointF(portnametag.X, portnametag.Y + 12));
                 return;
             }
-            var zoom = canvas.Viewport.Zoom;
+           
             if (comp.Megaset)
                 Render_Mega(graphics,zoom );
             else
-            Render_Uno(graphics,zoom);
-           if(zoom>.7) 
-            graphics.DrawString(comp.PortName, GH_FontServer.ConsoleSmall, Brushes.Teal, portnametag);
+                Render_Uno(graphics,zoom);
+            if(zoom>.7) 
+                graphics.DrawString(comp.PortName, GH_FontServer.ConsoleSmall, Brushes.Teal, portnametag);
            
            
 

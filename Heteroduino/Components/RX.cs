@@ -3,31 +3,24 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Rhino.UI.Forms;
 using Grasshopper.Kernel;
 using Heteroduino.Properties;
 
 namespace Heteroduino
 {
-    public interface RXF
-    {
-        void Doubleclick();
-    }
-
-    public class RX : GH_Component, RXF
+    public class RX : H_Component
     {
         private List<int> analogs = new List<int>();
         private List<bool> digitals = new List<bool>();
 
         public RX()
             : base("Receiver (RX Interpreter)", "RX.Heteroduino",
-                "Interprets data from the pins gotten from RX",
-                "Heteroptera", "Arduino")
+                "Interprets data from the pins gotten from RX")
         {
         }
 
-        public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
+    
 
         /// <summary>
         ///     Provides an Icon for the component.
@@ -40,7 +33,7 @@ namespace Heteroduino
         /// </summary>
         public override Guid ComponentGuid => new Guid("{3177fa34-ad23-45cf-9d2d-fc2deaf9dd18}");
 
-        public void Doubleclick() => Tools.GetSource(OnPingDocument(), Params.Input[0], 0);
+        public override void Doubleclick() => Tools.GetSource(OnPingDocument(), Params.Input[0], 0);
 
         public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
         {
@@ -94,7 +87,7 @@ namespace Heteroduino
             DA.SetDataList(2, sonaris);
         }
 
-        public override void CreateAttributes() => m_attributes = new Attri_ArdiComps(this);
+  
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
