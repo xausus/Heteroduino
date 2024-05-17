@@ -27,6 +27,7 @@ namespace Heteroduino
         private readonly List<int> speedbank = new List<int>() { 1000, 500, 250, 100, 50, 35, 20 };
         private List<int> ardiporti;
         Att_Core att;
+        public string __version = "-";
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
         private List<string> avaporti4DisplayList;
@@ -151,25 +152,35 @@ namespace Heteroduino
         }
 
         private int _timingMode = -1;
+
+        enum BOARDS
+        {
+            UNO, MEGA,DUE
+        }
+        
         public override bool AppendMenuItems(ToolStripDropDown menu)
         {
             Menu_AppendObjectName(menu);
             Menu_AppendEnableItem(menu);
             Menu_AppendSeparator(menu);
-        
-            Menu_AppendItem(menu, "Mega",
-                Megaseter, true, GetValue("mega", false));
-            Menu_AppendSeparator(menu);
-        
-        
+
+            
+
+            var m = Menu_AppendItem(menu, "Board Type >>").DropDown;
+            var cb = GetValue("board", BOARDS.UNO.ToString());
+            foreach (var name in Extensions.GetNames<BOARDS>())
+                   Menu_AppendItem(m, name,
+                                BoardSetter, true,cb==name );
+            
+            Menu_AppendItem(menu, "Auto-Detect Board!!",
+                (o,e)=>AutodetectArduinoPort(),
+                true, false);
+
             Menu_AppendItem(menu, "Purify Rx",
                 Pureseter, true, GetValue("pure", true)).ToolTipText = "Filtering excess data";
             Menu_AppendSeparator(menu);
-        
-        
             Menu_AppendItem(menu, "No-Port", portselect, true, PortName.StartsWith("No"));
-
-
+            
             try
             {
     foreach (var s in avaporti4DisplayList)
@@ -179,10 +190,7 @@ namespace Heteroduino
             {
                 Menu_AppendItem(menu, " -- No Appropriate Port --");
             }
-        
-
-
-
+            
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Self-Engine off", spdclick, true,
                 TimingMode == -1);
@@ -198,8 +206,7 @@ namespace Heteroduino
                 Menu_AppendItem(rundrop, $"{prefix} ({i}ms)", spdclick, true,
                 TimingMode == index);
             }
-        
-        
+            
             var bauddrop = Menu_AppendItem(menu, "Baudrate").DropDown;
             Menu_AppendItem(bauddrop, "Baudrate: 9600", boud_Clicked, true,
                 GetValue("baudrate", 9600) == 9600);
@@ -216,7 +223,7 @@ namespace Heteroduino
             SetValue("pure", !GetValue("pure", true));
         }
 
-        private void Megaseter(object sender, EventArgs e)
+        private void BoardSetter(object sender, EventArgs e)
         {
             RecordUndoEvent("megamod");
             SetValue("mega", !GetValue("mega", false));
@@ -286,6 +293,8 @@ namespace Heteroduino
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
+         __version = new HeteroduinoInfo().Version;
+         
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
@@ -299,7 +308,7 @@ namespace Heteroduino
 
             try
             {
-                AutodetectArduinoPort();
+              //  AutodetectArduinoPort();
                 _timingMode = GetValue("TimingMode", -1);
                 _portName = GetValue("Port", "No-Port");
                 Serial();
@@ -317,26 +326,19 @@ namespace Heteroduino
         /// <param name="DA"></param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-
-
             enable = PortName.Contains("Arduino");
             att.Rx_led = enable && !att.Rx_led;
             var temp = new List<string>();
             temp.AddRange(SteppersMessage.Select(i => i.ToString()));
             if (serial != null && serial.IsOpen)
                 DA.SetDataList(0, GetValue("pure", true) ? Pure_Rx : Rxs);
-            
-            
             if (TimingMode < 0) return;
-
            OnPingDocument()?.ScheduleSolution(speedbank[TimingMode], ScheduleCallback);
         }
-
-
-        private void ScheduleCallback(GH_Document doc) => this.ExpireSolution(false);
-
-
-
+        
+        private void ScheduleCallback(GH_Document doc) 
+            => this.ExpireSolution(false);
+        
         private bool? _megamode;
         public bool MegaMode
         {
@@ -357,20 +359,38 @@ namespace Heteroduino
         {
 
 
-            //
-            // using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Caption LIKE '%(COM%'"))
-            // {
-            //     var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
-            //     var portList = portNames.Select(n => n + " - " + ports.FirstOrDefault(s => s.Contains(n))).ToList();
-            //
-            //     foreach (string s in portList)
-            //     {
-            //         Console.WriteLine(s);
-            //     }
-            // }
-            //
+          
 
-            string SerialPortToFind = "Arduino"; // Change this to your desired device name
+       
+         //  var pp=  SerialPort.GetPortNames();
+         try
+         {
+             serial = new SerialPort("/dev/cu.usbmodem1401",9600);
+       
+             MessageBox.Show(serial.PortName);
+
+         }
+         catch (Exception e)
+         {
+             MessageBox.Show(e.Message);
+
+         }
+
+        return false;
+
+            
+            /*
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity "))
+            {
+                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
+                var portList = ports.Select(n => n + " - " + ports.FirstOrDefault(s => s.Contains(n))).ToList();
+                MessageBox.Show(portList.Join());
+
+            }
+            */
+            
+
+            /*string SerialPortToFind = "Arduino"; // Change this to your desired device name
             ardiporti = new List<int>();
             avaporti4DisplayList = new List<string>();
             var AvailablePorts =
@@ -413,7 +433,7 @@ namespace Heteroduino
             if (ardiporti.Count == 0) return false;
             defport = ardiporti[0];
             RecordUndoEvent("Port");
-            PortName = avaporti4DisplayList[defport];
+            PortName = avaporti4DisplayList[defport];*/
             return true;
         }
     }
