@@ -157,8 +157,7 @@ namespace Heteroduino
             Menu_AppendEnableItem(menu);
             Menu_AppendSeparator(menu);
         
-            Menu_AppendItem(menu, "Mega",
-                Megaseter, true, GetValue("mega", false));
+            Menu_AppendItem(menu, "Mega",   Megaseter, true,MegaMode);
             Menu_AppendSeparator(menu);
         
         
@@ -213,15 +212,18 @@ namespace Heteroduino
         private void Pureseter(object sender, EventArgs e)
         {
             RecordUndoEvent("Rx_Purity");
-            SetValue("pure", !GetValue("pure", true));
+            PureMode=!PureMode;
         }
 
         private void Megaseter(object sender, EventArgs e)
         {
             RecordUndoEvent("megamod");
-            SetValue("mega", !GetValue("mega", false));
+            MegaMode=!MegaMode;
             ExpireSolution(true);
         }
+
+       public void TxBlink() => att.TX_State = true;
+
 
         private void boud_Clicked(object sender, EventArgs e)
         {
@@ -311,6 +313,10 @@ namespace Heteroduino
 
         }
 
+
+
+
+
         /// <summary>
         /// -----------------------------------------------------------------------------------Solve Instance-------------
         /// </summary>
@@ -324,16 +330,13 @@ namespace Heteroduino
             var temp = new List<string>();
             temp.AddRange(SteppersMessage.Select(i => i.ToString()));
             if (serial != null && serial.IsOpen)
-                DA.SetDataList(0, GetValue("pure", true) ? Pure_Rx : Rxs);
+                DA.SetDataList(0,PureMode? Pure_Rx : Rxs);
             
             
             if (TimingMode < 0) return;
-
-           OnPingDocument()?.ScheduleSolution(speedbank[TimingMode], ScheduleCallback);
+           OnPingDocument()?.ScheduleSolution(speedbank[TimingMode],
+               doc=> this.ExpireSolution(false));
         }
-
-
-        private void ScheduleCallback(GH_Document doc) => this.ExpireSolution(false);
 
 
 
@@ -345,6 +348,16 @@ namespace Heteroduino
             {
                 _megamode = value;
                 SetValue("megamode",value);
+            }
+        }
+        private bool? _puremode;
+        public bool PureMode
+        {
+            get => _puremode ??= this.GetValue("pure", true);
+            set
+            {
+                _puremode = value;
+                SetValue("pure", value);
             }
         }
 

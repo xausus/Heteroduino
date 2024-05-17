@@ -109,16 +109,13 @@ namespace Heteroduino
             GH_Skin.palette_warning_selected = Hds.Selected;
             GH_Skin.palette_error_standard = Hds.Error;
             GH_Skin.palette_error_selected = Hds.Selected;
-
             base.Render(canvas, graphics, channel);
-
             GH_Skin.palette_hidden_standard =Hds. StyleStandard;
             GH_Skin.palette_hidden_selected = Hds.StyleStyleSelected;
             GH_Skin.palette_warning_standard = Hds.StyleWStandard;
             GH_Skin.palette_warning_selected = Hds.StyleWSelected;
             GH_Skin.palette_error_standard = Hds.StyleEStandard;
             GH_Skin.palette_error_selected = Hds.StyleESelected;
-
         }
 
         public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)

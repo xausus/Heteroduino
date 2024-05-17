@@ -61,7 +61,9 @@ namespace Heteroduino
         void OnCoreExpire(IGH_DocumentObject sender, GH_SolutionExpiredEventArgs ghSolutionExpiredEventArgs)
         {
             var mm = '%' + string.Concat(StepperStack.Select(i => i.Code.ToString("X8")));
-            ForceSerialsend(mm);
+            StepperStack.Clear();
+            SerialSend(mm);
+
         }
         public override Guid ComponentGuid => new Guid("{757a5edf-c9a5-405f-91bf-178c15daa58e}");
 
@@ -177,8 +179,14 @@ namespace Heteroduino
             base.RemovedFromDocument(document);
         }
 
-        
-        public bool ForceSerialsend(string msg)
+
+        public void SerialInstanceSend(string msg)
+        {
+            SerialSend(msg);
+            CoreBase.TxBlink();
+        }
+
+        public bool SerialSend(string msg)
         {
             comouot.Add(msg);
             try
@@ -226,7 +234,7 @@ namespace Heteroduino
                 }
                 ccbek += '*';
                 if (ccbek.Length > 2)
-                    ForceSerialsend(ccbek);
+                    SerialInstanceSend(ccbek);
             }
 
             //===========================================================Motor===============================
@@ -261,14 +269,14 @@ namespace Heteroduino
             //===================================================FreeSyntax=================================
             var DC = "";
             if (DA.GetData(3, ref DC) && DC != "")
-                ForceSerialsend(DC);
+                SerialSend(DC);
 
             DA.SetDataList(0, comouot);
         }
 
         public int NumberOfSonars = 0;
         public HashSet<StepperState> StepperStack = new HashSet<StepperState>();
-        void UpdateSonars(int n)=> ForceSerialsend(n.ToString("@0"));
+        void UpdateSonars(int n)=> SerialSend(n.ToString("@0"));
 
         /// <summary>
         /// ---------------------------------------------------------pairing---------------

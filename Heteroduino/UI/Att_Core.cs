@@ -1,15 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-
 using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
 using static Heteroduino.Properties.Resources;
-using Brush = System.Drawing.Brush;
-using Color = System.Drawing.Color;
-using RectangleF = System.Drawing.RectangleF;
 
 namespace Heteroduino
 {
@@ -25,9 +21,15 @@ namespace Heteroduino
         private bool enable;
         private List<PointF> nodes;
         private PointF portnametag;
-        public Att_Core(Core component) : base(component){comp = component;}
+
+        public Att_Core(Core component) : base(component)
+        {
+            comp = component;
+        }
+
         public bool Rx_led { get; set; }
-        public bool Tx_led { get; private set; }
+        private bool Tx_led { get;  set; }
+
         public bool TX_State
         {
             get
@@ -42,26 +44,25 @@ namespace Heteroduino
                 ExpireLayout();
             }
         }
+
         protected override void Layout()
         {
-           
             if (comp.MegaMode)
                 LayOut_Mega();
             else
                 LayOut_Uno();
- portnametag =Bounds.Location+new SizeF(45,170) ;
-          
-
+            portnametag = Bounds.Location + new SizeF(45, 170);
         }
+
         private void LayOut_Uno()
         {
             var msc = 230f;
-            var sc = msc/167.5f;
-            
+            var sc = msc / 167.5f;
+
             var ww = msc;
-            var hh = msc/1.3f;
+            var hh = msc / 1.3f;
             base.Layout();
-            Bounds = new RectangleF(Pivot.X - ww/2 + msc/35, Pivot.Y - hh/2, ww, hh);
+            Bounds = new RectangleF(Pivot.X - ww / 2 + msc / 35, Pivot.Y - hh / 2, ww, hh);
 
             foreach (var p in Owner.Params.Output)
             {
@@ -73,35 +74,37 @@ namespace Heteroduino
                 pp.X += 83;
                 pat.Pivot = pp;
             }
+
             rects.Clear();
 
-            var ss = 5f*sc;
+            var ss = 5f * sc;
             var s = new SizeF(ss, ss);
-            var ba = new PointF(Pivot.X - 20.5f*sc, Pivot.Y - 53.25f*sc);
+            var ba = new PointF(Pivot.X - 20.5f * sc, Pivot.Y - 53.25f * sc);
             for (var i = 0; i < 18; i++)
             {
-                if (i == 10) ba.X += 3f*sc;
+                if (i == 10) ba.X += 3f * sc;
                 rects.Add(new RectangleF(ba, s));
                 ba.X += ss;
             }
-            ba = new PointF(Pivot.X - 2.24f*sc, Pivot.Y + 48f*sc);
+
+            ba = new PointF(Pivot.X - 2.24f * sc, Pivot.Y + 48f * sc);
             for (var i = 0; i < 14; i++)
             {
-                if (i == 8) ba.X += 4.5f*sc;
+                if (i == 8) ba.X += 4.5f * sc;
                 rects.Add(new RectangleF(ba, s));
                 ba.X += ss;
             }
 
 
-            var ly = 2.8f*sc;
-            ss += .3f*sc;
-            var scx = Pivot.X - 2.8f*sc;
+            var ly = 2.8f * sc;
+            ss += .3f * sc;
+            var scx = Pivot.X - 2.8f * sc;
             crects = new List<RectangleF>
             {
-                new RectangleF(scx, Pivot.Y - 32f*sc, ss, ly),
-                new RectangleF(scx, Pivot.Y - 22.3f*sc, ss, ly),
-                new RectangleF(scx, Pivot.Y - 17.3f*sc, ss, ly),
-                new RectangleF(Pivot.X + 59f*sc, Pivot.Y - 22.3f*sc, ss, ly)
+                new RectangleF(scx, Pivot.Y - 32f * sc, ss, ly),
+                new RectangleF(scx, Pivot.Y - 22.3f * sc, ss, ly),
+                new RectangleF(scx, Pivot.Y - 17.3f * sc, ss, ly),
+                new RectangleF(Pivot.X + 59f * sc, Pivot.Y - 22.3f * sc, ss, ly)
             };
 
 
@@ -114,10 +117,11 @@ namespace Heteroduino
             enable = !Owner.Locked && comp.enable;
             nodes = rects.Select(center).ToList();
         }
+
         private void LayOut_Mega()
         {
             var hh = 177f;
-            var msc =hh*1.89f;
+            var msc = hh * 1.89f;
             var sc = 1.48f;
             var ww = msc;
             base.Layout();
@@ -131,7 +135,7 @@ namespace Heteroduino
                 b.X = Pivot.X + mover;
                 pat.Bounds = b;
                 var pp = pat.Pivot;
-                pp.X += mover-2;
+                pp.X += mover - 2;
                 pat.Pivot = pp;
             }
 
@@ -161,10 +165,10 @@ namespace Heteroduino
             var scx = Pivot.X - 36.4f * sc;
             crects = new List<RectangleF>
             {
-                new RectangleF(scx, Pivot.Y - 32f*sc, ss, ly),
-                new RectangleF(scx, Pivot.Y - 21.3f*sc, ss, ly),
-                new RectangleF(scx, Pivot.Y - 16.7f*sc, ss, ly),
-                new RectangleF(Pivot.X + 59f*sc, Pivot.Y - 22.3f*sc, ss, ly)
+                new RectangleF(scx, Pivot.Y - 32f * sc, ss, ly),
+                new RectangleF(scx, Pivot.Y - 21.3f * sc, ss, ly),
+                new RectangleF(scx, Pivot.Y - 16.7f * sc, ss, ly),
+                new RectangleF(Pivot.X + 59f * sc, Pivot.Y - 22.3f * sc, ss, ly)
             };
 
             rects.AddRange(crects);
@@ -173,31 +177,28 @@ namespace Heteroduino
                 bram[i].Inflate(-2f, -2f);
             enable = !Owner.Locked;
             nodes = rects.Select(center).ToList();
-
         }
+
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
-
- var zoom = canvas.Viewport.Zoom;
+            var zoom = canvas.Viewport.Zoom;
             if (channel != GH_CanvasChannel.Objects)
             {
                 base.Render(canvas, graphics, channel);
-                if(channel==GH_CanvasChannel.Overlay && zoom>.7)
+                if (channel == GH_CanvasChannel.Overlay && zoom > .7)
                     graphics.DrawString("Heteroduino Beta 2.91",
-               GH_FontServer.ConsoleSmall, Brushes.White, new PointF(portnametag.X, portnametag.Y + 12));
+                        GH_FontServer.ConsoleSmall, Brushes.White, new PointF(portnametag.X, portnametag.Y + 12));
                 return;
             }
-           
-            if (comp.MegaMode)
-                Render_Mega(graphics,zoom );
-            else
-                Render_Uno(graphics,zoom);
-            if(zoom>.7) 
-                graphics.DrawString(comp.PortName, GH_FontServer.ConsoleSmall, Brushes.Teal, portnametag);
-           
-           
 
+            if (comp.MegaMode)
+                Render_Mega(graphics, zoom);
+            else
+                Render_Uno(graphics, zoom);
+            if (zoom > .7)
+                graphics.DrawString(comp.PortName, GH_FontServer.ConsoleSmall, Brushes.Teal, portnametag);
         }
+
         private void Render_Uno(Graphics graphics, float zoom)
         {
             var k = Bounds;
@@ -216,10 +217,13 @@ namespace Heteroduino
                 var ff = .4;
 
                 GH_GraphicsUtil.RenderFadedImage(graphics, uno, Rectangle.Round(k),
-                    (zoom - ff)/(.7 - ff));
+                    (zoom - ff) / (.7 - ff));
                 if (zoom < .6) return;
             }
-            else graphics.DrawImage(uno, k);
+            else
+            {
+                graphics.DrawImage(uno, k);
+            }
 
             graphics.FillRectangle(offColor, crects[0]);
             graphics.FillRectangle(TX_State ? onColor : offColor, crects[1]);
@@ -229,7 +233,8 @@ namespace Heteroduino
 
             //   cap.RenderEngine.RenderGrips_Alternative(graphics);
             if (Owner.Locked)
-                cap.Render(graphics, new GH_PaletteStyle(Owner.Locked||!comp.enable ? Hds.selcol : Hds.basecol, Color.CadetBlue));
+                cap.Render(graphics,
+                    new GH_PaletteStyle(Owner.Locked || !comp.enable ? Hds.selcol : Hds.basecol, Color.CadetBlue));
 
             cap.Dispose();
 
@@ -239,11 +244,10 @@ namespace Heteroduino
             int i;
             graphics.DrawLine(Pens.DarkGray, nodes[i = 5], nodes[++i]);
             graphics.DrawLine(Pens.DarkGray, nodes[i = 10], nodes[++i]);
-         
         }
+
         private void Render_Mega(Graphics graphics, float zoom)
         {
-
             var k = Bounds;
             var f = Bounds;
             f.Inflate(-12, -10);
@@ -254,9 +258,9 @@ namespace Heteroduino
             if (zoom < 1.4)
             {
                 graphics.FillPath(new SolidBrush(
-                    GH_GraphicsUtil.FadeColour
-                        (1.4, 1, zoom, basecolor)),
-                        GH_GDI_Util.FilletRectangle(Rectangle.Round(f), 10));
+                        GH_GraphicsUtil.FadeColour
+                            (1.4, 1, zoom, basecolor)),
+                    GH_GDI_Util.FilletRectangle(Rectangle.Round(f), 10));
                 if (zoom < .5) return;
                 var ff = .4;
 
@@ -264,7 +268,10 @@ namespace Heteroduino
                     (zoom - ff) / (.7 - ff));
                 if (zoom < .6) return;
             }
-            else graphics.DrawImage(Mega, k);
+            else
+            {
+                graphics.DrawImage(Mega, k);
+            }
 
             graphics.FillRectangle(offColor, crects[0]);
             graphics.FillRectangle(TX_State ? onColor : offColor, crects[1]);
@@ -277,10 +284,13 @@ namespace Heteroduino
                 cap.Render(graphics, new GH_PaletteStyle(Owner.Locked ? Hds.selcol : Hds.basecol, Color.CadetBlue));
 
             cap.Dispose();
-        
-
         }
-        private PointF center(RectangleF r) => new PointF(r.X + r.Width/2, r.Y + r.Height/2);
+
+        private PointF center(RectangleF r)
+        {
+            return new PointF(r.X + r.Width / 2, r.Y + r.Height / 2);
+        }
+
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
             if (sender.Viewport.Zoom < 1.5) return base.RespondToMouseDown(sender, e);
@@ -289,7 +299,7 @@ namespace Heteroduino
 
             var index = rects.FindIndex(i => i.Contains(k));
             if (index >= 0) comp.Index = index;
-            Owner.ExpirePreview(true);
+            ExpireLayout();
             return base.RespondToMouseDown(sender, e);
         }
 
@@ -299,6 +309,5 @@ namespace Heteroduino
             comp.Resetports();
             return base.RespondToMouseDoubleClick(sender, e);
         }
-
     }
 }
