@@ -17,6 +17,6 @@ namespace Heteroduino
 
         }
 
-        public override GH_Exposure Exposure => GH_Exposure.secondary;
+        public override GH_Exposure Exposure => GH_Exposure.quarternary;
     }
 }

@@ -1,19 +1,20 @@
-﻿using Grasshopper.GUI.Canvas;
-using System.Drawing;
+﻿using System.Drawing;
 using Grasshopper.GUI;
-
+using Grasshopper.GUI.Canvas;
+using Grasshopper.Kernel.Attributes;
 
 namespace Heteroduino
 {
-    public class Att_H_Comp : Grasshopper.Kernel.Attributes.GH_ComponentAttributes
+    public class Att_H_Comp : GH_ComponentAttributes
     {
-        public Att_H_Comp(H_Component  owner   ) 
-            : base(  owner)
+        private readonly H_Component Comp;
+
+        public Att_H_Comp(H_Component owner)
+            : base(owner)
         {
             Comp = owner;
         }
 
-        private H_Component Comp;
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
             if (channel != GH_CanvasChannel.Objects)
@@ -45,8 +46,4 @@ namespace Heteroduino
             return GH_ObjectResponse.Release;
         }
     }
-
-    }
-
-
-
+}

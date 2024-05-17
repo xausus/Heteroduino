@@ -1,15 +1,14 @@
 ﻿#region
 
-using Grasshopper.Kernel;
-using Heteroduino.Properties;
-using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
-using System.Management;
 using System.Windows.Forms;
+using Grasshopper.Kernel;
+using Heteroduino.Properties;
+using Rhino.Geometry;
 
 #endregion
 
@@ -21,37 +20,29 @@ namespace Heteroduino
     {
         readonly Interval normalrate = new Interval(50, 100);
         private readonly List<int> speedbank = new List<int>() { 1000, 500, 250, 100, 50, 35, 20 };
-        private List<int> ardiporti;
-        Att_Core att;
         public string __version = "-";
+        private ARDUINO_BOARD _activeBoard;
 
-        public override GH_Exposure Exposure => GH_Exposure.primary;
-        private List<string> avaporti4DisplayList;
+
+        private bool? _megamode;
+
+
+        private bool? _puremode;
+
+        private int _timingMode = -1;
+
+
+
 
         public PointF baraks;
         char[] cats = new char[] { 'R', 'M', 'S', 'E' };
 
-        public string comindex;
 
-        int defport = -1;
-        public bool enable = false;
+     
         public int Index;
         string[] lastcommand = new string[] { "", "", "", "", "" };
 
         List<string> outrx = new List<string>();
-
-
-        public string PortName
-        {
-            get { return _portName; }
-            set
-            {
-                _portName = value;
-                SetValue("Port", _portName);
-            }
-        }
-
-        private string _portName = "";
         public SerialPort serial;
         int[] spds = { -1, 500, 100, 35 };
         private string stack = "";
@@ -65,8 +56,10 @@ namespace Heteroduino
                 "and the other components. It's also equipped with RX output,the row data receiving from arduino." +
                 " \n \n-Zoom and click to refresh RX while the engine is off\n-Double-Click to reset the port settings")
         {
-            att = this.m_attributes as Att_Core;
+
         }
+
+        public override GH_Exposure Exposure => GH_Exposure.primary;
 
         protected override Bitmap Icon => Resources.arduilogo;
         public override Guid ComponentGuid => new Guid("{2edff0e3-63d0-495f-82ff-83edb73656f8}");
@@ -117,10 +110,113 @@ namespace Heteroduino
         }
 
 
+        private readonly ARDUINO_BOARD.BoardType[] Megalike = new[]
+            { ARDUINO_BOARD.BoardType.Mega, ARDUINO_BOARD.BoardType.Due };
+
+
+
+
+        public bool MegaMode
+        {
+            get => _megamode ??= this.GetValue("megamode", false);
+            set
+            {
+                _megamode = value;
+                SetValue("megamode", value);
+            }
+        }
+
+        public bool PureMode
+        {
+            get => _puremode ??= this.GetValue("pure", true);
+            set
+            {
+                _puremode = value;
+                SetValue("pure", value);
+            }
+        }
+
+        public ARDUINO_BOARD ActiveBoard
+        {
+            get => _activeBoard;
+            set
+            {
+                if (value == _activeBoard) return;
+                _activeBoard = value;
+                CloseSerial();
+
+                if (value == null)
+                {
+                    _activeBoard = null;
+                    MegaMode = false;
+                    serial = null;
+
+                }
+                else
+                {
+                    _activeBoard = value;
+                    MegaMode = Megalike.Contains(value.TYPE);
+                    OpenSerial();
+                }
+
+            }
+        }
+
+        public bool Rx_led;
+
+        bool OpenSerial()
+        {
+
+            if (ActiveBoard == null) return false;
+
+            if (serial != null && serial.PortName != ActiveBoard.Port)
+            {
+                serial.Dispose();
+                serial = null;
+            }
+            try
+            {
+                if (serial == null)
+                    serial = new SerialPort(ActiveBoard.Port, GetValue("baudrate", 9600));
+                serial.Open();
+                SerialChangeState.Invoke(serial, new TT(true));
+                return true;
+            }
+            catch (Exception e)
+            {
+                ActiveBoard = null;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, e.Message);
+                return false;
+            }
+        }
+
+        public event EventHandler<TT> SerialChangeState;
+
+        void CloseSerial()
+        {
+            if (serial != null && serial.IsOpen)
+            {
+                serial.Close();
+                SerialChangeState.Invoke(serial, new TT(false));
+            }
+        }
+
+       public class TT:EventArgs
+        {
+            public bool State;
+
+            public TT(bool state)
+            {
+                State = state;
+            }
+        }
+
+
+
         public void Resetports()
         {
-            close();
-            Serial();
+            CloseSerial();
+            OpenSerial();
         }
 
         private List<string> Purify(List<string> c)
@@ -149,15 +245,6 @@ namespace Heteroduino
             return outrx;
         }
 
-        private int _timingMode = -1;
-
-        enum BOARDS
-        {
-            UNO,
-            MEGA,
-            DUE
-        }
-
         public override bool AppendMenuItems(ToolStripDropDown menu)
         {
             Menu_AppendObjectName(menu);
@@ -165,14 +252,14 @@ namespace Heteroduino
             Menu_AppendSeparator(menu);
 
 
-            var m = Menu_AppendItem(menu, "Board Type >>").DropDown;
-            var cb = GetValue("board", BOARDS.UNO.ToString());
-            foreach (var name in Extensions.GetNames<BOARDS>())
-                Menu_AppendItem(m, name,
-                    BoardSetter, true, cb == name);
+            // var m = Menu_AppendItem(menu, "Board Type >>").DropDown;
+            // var cb = GetValue("board", ARDUINO_BOARD.BoardType.UNO.ToString());
+            // foreach (var name in Extensions.GetNames<ARDUINO_BOARD.BoardType>())
+            //     Menu_AppendItem(m, name,
+            //         BoardSetter, true, cb == name);
 
             Menu_AppendItem(menu, "Auto-Detect Board!!",
-                (o, e) => AutodetectArduinoPort(),
+                (o, e) => Refresh(),
                 true, false);
 
             Menu_AppendItem(menu, "Purify Rx",
@@ -180,18 +267,19 @@ namespace Heteroduino
             Menu_AppendSeparator(menu);
 
 
-            Menu_AppendItem(menu, "No-Port", portselect, true, PortName.StartsWith("No"));
+            Menu_AppendItem(menu, "No-Port", ChooseBoard, true, ActiveBoard == null);
 
 
-            try
-            {
-                foreach (var s in avaporti4DisplayList)
-                    Menu_AppendItem(menu, s, portselect, true, PortName.StartsWith(s));
-            }
-            catch (Exception)
-            {
-                Menu_AppendItem(menu, " -- No Appropriate Port --");
-            }
+            foreach (var s in ARDUINO_BOARD.Bank)
+                try
+                {
+                    Menu_AppendItem(menu, s.Fullname, ChooseBoard,
+                        true, ActiveBoard?.Port == s.Port).Tag = s;
+                }
+                catch (Exception)
+                {
+                    Menu_AppendItem(menu, " -- No Appropriate Port --");
+                }
 
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Self-Engine off", spdclick, true,
@@ -221,6 +309,14 @@ namespace Heteroduino
             return true;
         }
 
+        private void Refresh(int n = -1)
+        {
+            //    MessageBox.Show(ARDUINO_BOARD.AvailablePorts.Join());
+            MessageBox.Show(ARDUINO_BOARD.Bank.Select(i => i.ToDescString()).Join());
+            //    ActiveBoard =(n<0)? ARDUINO_BOARD.Bank.First(): ARDUINO_BOARD.Bank[n];
+        }
+
+
         private void BoardSetter(object sender, EventArgs e)
         {
         }
@@ -238,7 +334,14 @@ namespace Heteroduino
             ExpireSolution(true);
         }
 
-        public void TxBlink() => att.TX_State = true;
+
+        public event EventHandler Jump;
+
+
+        public void TxBlink()
+        {
+            Jump?.Invoke(this, new EventArgs());
+        }
 
 
         private void boud_Clicked(object sender, EventArgs e)
@@ -246,46 +349,18 @@ namespace Heteroduino
             var val = int.Parse(sender.ToString().Substring(10));
             RecordUndoEvent("baud");
             SetValue("baudrate", val);
-            Serial();
+            OpenSerial();
             ExpireSolution(true);
         }
 
-        bool Serial()
-        {
-            comindex = string.Concat(PortName.TakeWhile(i => i != ':'));
-            bool r;
-            try
-            {
-                serial?.Dispose();
-                serial = new SerialPort(comindex, GetValue("baudrate", 9600));
-                serial.Open();
-                r = true;
-            }
-            catch (Exception)
-            {
-                serial = new SerialPort();
-                PortName = "No Port!";
-                r = false;
-            }
 
-            return r;
-        }
-
-        void close()
+        private void ChooseBoard(object sender, EventArgs e)
         {
-            if (serial != null && serial.IsOpen) serial.Close();
-        }
 
-        private void portselect(object sender, EventArgs e)
-        {
-            RecordUndoEvent("Port select");
-            var p = sender.ToString();
-            close();
-            PortName = p;
-            if (!p.StartsWith("No"))
-                Serial();
+            ActiveBoard = (sender as ToolStripMenuItem).Tag as ARDUINO_BOARD;
             ExpireSolution(true);
         }
+
 
         private void spdclick(object sender, EventArgs e)
         {
@@ -316,10 +391,10 @@ namespace Heteroduino
         {
             try
             {
-                AutodetectArduinoPort();
+                ARDUINO_BOARD.Update();
                 _timingMode = GetValue("TimingMode", -1);
-                _portName = GetValue("Port", "No-Port");
-                Serial();
+
+                OpenSerial();
             }
             catch (Exception)
             {
@@ -327,14 +402,15 @@ namespace Heteroduino
         }
 
         /// <summary>
-        /// -----------------------------------------------------------------------------------Solve Instance-------------
+        ///     -----------------------------------------------------------------------------------Solve Instance-------------
         /// </summary>
         /// <param name="DA"></param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            enable = PortName.Contains("Arduino");
-            att.Rx_led = enable && !att.Rx_led;
-            var temp = new List<string>();
+
+
+       Rx_led=!Rx_led;
+        var temp = new List<string>();
             temp.AddRange(SteppersMessage.Select(i => i.ToString()));
             if (serial != null && serial.IsOpen)
                 DA.SetDataList(0, PureMode ? Pure_Rx : Rxs);
@@ -346,86 +422,8 @@ namespace Heteroduino
         }
 
 
-        private bool? _megamode;
-
-        public bool MegaMode
-        {
-            get => _megamode ??= this.GetValue("megamode", false);
-            set
-            {
-                _megamode = value;
-                SetValue("megamode", value);
-            }
-        }
-
-        private bool? _puremode;
-
-        public bool PureMode
-        {
-            get => _puremode ??= this.GetValue("pure", true);
-            set
-            {
-                _puremode = value;
-                SetValue("pure", value);
-            }
-        }
-
-
-        public override void RemovedFromDocument(GH_Document document) => close();
-        public override void DocumentContextChanged(GH_Document document, GH_DocumentContext context) => close();
+        public override void RemovedFromDocument(GH_Document document) => CloseSerial();
+        public override void DocumentContextChanged(GH_Document document, GH_DocumentContext context) => CloseSerial();
         public override void CreateAttributes() => m_attributes = new Att_Core(this);
-
-        private bool AutodetectArduinoPort()
-        {
-            //  var pp=  SerialPort.GetPortNames();
-            
-                serial = new SerialPort("/dev/cu.usbmodem1401", 9600);
-
-                MessageBox.Show(serial.PortName);
-
-                string SerialPortToFind = "Arduino"; // Change this to your desired device name
-                ardiporti = new List<int>();
-                avaporti4DisplayList = new List<string>();
-                var AvailablePorts =
-                    SerialPort.GetPortNames().ToList();
-
-                using (var entitySearcher = new ManagementObjectSearcher("root\\CIMV2",
-                           $"SELECT * FROM Win32_PnPEntity WHERE Caption LIKE '%{SerialPortToFind}%'"))
-                {
-                    foreach (var entity in entitySearcher.Get())
-                    {
-                        try
-                        {
-                            // Process the found devices (e.g., check if it's an Arduino)
-                            string deviceName = entity["Name"].ToString();
-                            string deviceId = entity["DeviceID"].ToString();
-                            string desc = entity["Description"].ToString();
-                            if (desc.Contains("Arduino"))
-                            {
-                                var portindex = AvailablePorts.IndexOf(deviceId);
-                                avaporti4DisplayList[portindex] = $"{deviceId}: {desc}";
-                                ardiporti.Add(portindex);
-                                if (desc.Contains("Mega"))
-                                {
-                                    RecordUndoEvent("mega-mod");
-                                    SetValue("mega", true);
-                                }
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
-                    }
-                    // Now you can use the deviceId to find the corresponding COM port using MSSerial_PortName
-                    // ...
-                }
-
-                if (ardiporti.Count == 0) return false;
-                defport = ardiporti[0];
-                RecordUndoEvent("Port");
-                PortName = avaporti4DisplayList[defport];
-                return true;
-            }
-        }
     }
+}

@@ -121,49 +121,40 @@
   <data name="arduilogo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\arduilogo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Core3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\co12.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="CC" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CC.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Core2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\co18.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="CORE" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="co17" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\co17.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="heteroduino core" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\heteroduino core.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="logo_text" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\logo_text.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="RX" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\r2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="SM" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\s11.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="TX2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SP14.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="TX" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SP16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="CC" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CC2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="MF" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\MF8.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="MF7" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\MF7.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="uno" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uno.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Mega" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Mega.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="ParamOption" xml:space="preserve">
-    <value>\nRightclick and choose tone from the given options</value>
+  <data name="MF" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MF.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="heteroduino_core" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\heteroduino core.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="MF8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MF8.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PinParam" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PinParam.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RX" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\RX.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SM" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SM.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="TX" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TX.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Uno" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Uno.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

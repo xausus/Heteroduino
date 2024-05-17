@@ -37,25 +37,17 @@ namespace Heteroduino
             return string.Join("|", a);
         }
 
-        public static string ToStringChain<T>(this IEnumerable<T> a, string delim)
-        {
-            return string.Join(delim, a);
-        }
+        public static string ToStringChain<T>(this IEnumerable<T> a, string delim) => string.Join(delim, a);
 
-        public static string ToStringChain<T, G>(this IEnumerable<T> a, string delim, Func<T, G> k)
-        {
-            return string.Join(delim, a.Select(k));
-        }
+        public static string ToStringChain<T, G>(this IEnumerable<T> a, string delim, Func<T, G> k) => string.Join(delim, a.Select(k));
 
-        public static string ToStringChain<T, G>(this IEnumerable<T> a, Func<T, G> k)
-        {
-            return string.Join("|", a.Select(k));
-        }
+        public static string ToStringChain<T, G>(this IEnumerable<T> a, Func<T, G> k) => string.Join("|", a.Select(k));
 
-        public static string[] GetNames<T>()
-        {
-            return Enum.GetNames(typeof(T)).Select(i => i.Replace("_", " ")).ToArray();
-        }
+        public static string[] GetNames<T>() => Enum.GetNames(typeof(T)).Select(i => i.Replace("_", " ")).ToArray();
+
+        public static Dictionary<string, T> GetDictionary<T>() =>
+            Enum.GetValues(typeof(T)).Cast<T>().ToDictionary(i => i.ToString(), i => i);
+        
 
         public static void Fill(this Param_Integer a, string[] names)
         {

@@ -83,29 +83,9 @@ namespace Heteroduino.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap CORE {
+        internal static System.Drawing.Bitmap co17 {
             get {
-                object obj = ResourceManager.GetObject("CORE", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Core2 {
-            get {
-                object obj = ResourceManager.GetObject("Core2", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Core3 {
-            get {
-                object obj = ResourceManager.GetObject("Core3", resourceCulture);
+                object obj = ResourceManager.GetObject("co17", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -115,7 +95,7 @@ namespace Heteroduino.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap heteroduino_core {
             get {
-                object obj = ResourceManager.GetObject("heteroduino_core", resourceCulture);
+                object obj = ResourceManager.GetObject("heteroduino core", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -153,19 +133,20 @@ namespace Heteroduino.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap MF7 {
+        internal static System.Drawing.Bitmap MF8 {
             get {
-                object obj = ResourceManager.GetObject("MF7", resourceCulture);
+                object obj = ResourceManager.GetObject("MF8", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \nRightclick and choose tone from the given options.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static string ParamOption {
+        internal static System.Drawing.Bitmap PinParam {
             get {
-                return ResourceManager.GetString("ParamOption", resourceCulture);
+                object obj = ResourceManager.GetObject("PinParam", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -202,19 +183,9 @@ namespace Heteroduino.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap TX2 {
+        internal static System.Drawing.Bitmap Uno {
             get {
-                object obj = ResourceManager.GetObject("TX2", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap uno {
-            get {
-                object obj = ResourceManager.GetObject("uno", resourceCulture);
+                object obj = ResourceManager.GetObject("Uno", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

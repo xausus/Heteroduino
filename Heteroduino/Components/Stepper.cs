@@ -92,12 +92,12 @@ namespace Heteroduino
           
         }
         
-        public override GH_Exposure Exposure => GH_Exposure.secondary;
+        public override GH_Exposure Exposure => GH_Exposure.quarternary;
 
         /// <summary>
         ///     Provides an Icon for the component.
         /// </summary>
-        protected override Bitmap Icon => Resources.SM;
+        protected override Bitmap Icon =>Properties.  Resources.SM;
 
         /// <summary>
         ///     Gets the unique ID for this component. Do not change this ID after release.

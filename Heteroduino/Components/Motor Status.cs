@@ -76,12 +76,12 @@ namespace Heteroduino
         public override void AddedToDocument(GH_Document document) => Tools.AddCoreRX(this);
 
 
- List<int> index=new List<int>();
-            List<bool> runing = new List<bool>();
-            List<int> poss =new List<int>();
-            List<int> trgs = new List<int>();
-            List<double> spds = new List<double>();
-        List<int> acc=new List<int>();
+       readonly List<int> index=new List<int>();
+       readonly List<bool> runing = new List<bool>();
+       readonly List<int> poss =new List<int>();
+       readonly List<int> trgs = new List<int>();
+       readonly List<double> spds = new List<double>();
+       readonly List<int> _acc=new List<int>();
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
@@ -94,7 +94,7 @@ namespace Heteroduino
             poss.Clear();
             trgs.Clear();
             spds.Clear();
-            acc.Clear();
+            _acc.Clear();
             s = s.Substring(1);
             if(s=="~") return;
             var motors = s.Split('^');
@@ -109,7 +109,7 @@ namespace Heteroduino
                 trgs.Add(trg);
                 spds.Add(Convert.ToDouble(sp[3]));
                 runing.Add(pos!=trg);
-                acc.Add(Convert.ToInt32(sp[4]));
+                _acc.Add(Convert.ToInt32(sp[4]));
 
             }
 
@@ -119,7 +119,7 @@ namespace Heteroduino
             DA.SetDataList(2, poss);
             DA.SetDataList(3, trgs);
             DA.SetDataList(4, spds);
-            DA.SetDataList(5, acc);
+            DA.SetDataList(5, _acc);
         }
         
         protected override System.Drawing.Bitmap Icon => Properties.Resources.MF;

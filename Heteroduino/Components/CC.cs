@@ -34,7 +34,7 @@ namespace Heteroduino
         /// <summary>
         ///     Provides an Icon for the component.
         /// </summary>
-        protected override Bitmap Icon => Resources.CC;
+        protected override Bitmap Icon =>Properties. Resources.CC;
 
         /// <summary>
         ///     Gets the unique ID for this component. Do not change this ID after release.
@@ -50,7 +50,7 @@ namespace Heteroduino
 
             pManager.AddIntegerParameter("Value", "V", "PIN Value \nfor Digital:" +
                                                        " 0-1\nfor PWM: 0-255\nfor Servo: 0-180", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("PinMode", "P", "PIN Mode : 0: Digital    1: PWM   2: Servo" + Resources.ParamOption, GH_ParamAccess.item, 0);
+            pManager.AddIntegerParameter("PinMode", "P", "PIN Mode : 0: Digital    1: PWM   2: Servo" + Resources.PinParam, GH_ParamAccess.item, 0);
             Param_Integer PinModeNames = pManager[1] as Param_Integer;
             for (int i = 0; i < 3; i++)
                 PinModeNames.AddNamedValue(_mode[i], i);

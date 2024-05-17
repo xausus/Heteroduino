@@ -104,7 +104,8 @@ namespace Heteroduino
                 GH_ParamAccess.list);
 
             var x = pManager.AddIntegerParameter("Sonar Number", "SN",
-                "The Number of Sonar-Sensors\nRight-Click and choose the number of sonars\n The maximum allowed number of sonar sensors are 3 for Uno and 8 for Mega boards." + Resources.ParamOption,
+                "The Number of Sonar-Sensors\nRight-Click and choose the number of sonars" +
+                "\n The maximum allowed number of sonar sensors are 3 for Uno and 8 for Mega boards." + Properties. Resources.PinParam,
                 GH_ParamAccess.item, 0);
 
             pManager.AddTextParameter("Direct Commands", "DC", "Commands to sent to Arduino's serial port directly",
