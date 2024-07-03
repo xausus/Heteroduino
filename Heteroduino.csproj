@@ -22,12 +22,17 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<Compile Include="Components\PINState.cs" />
+		<Compile Include="Components\TargetState.cs" />
 		<Compile Include="Extension.cs" />
 		<Compile Include="Properties\Resources.Designer.cs">
 		  <DesignTime>True</DesignTime>
 		  <AutoGen>True</AutoGen>
 		  <DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+		<Compile Include="Properties\Settings.Designer.cs">
+		  <DesignTimeSharedInput>True</DesignTimeSharedInput>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>Settings.settings</DependentUpon>
 		</Compile>
 		<Compile Include="Templates\HetroBase_Component.cs" />
 		<Compile Include="Templates\H_Component.cs" />
@@ -51,6 +56,11 @@
 		<Compile Include="Components\TX.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Include="App.config" />
+	  <None Include="Properties\Settings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	  </None>
 	  <None Include="Resources\328364-200.png" />
 	  <Content Include="Resources\arduilogo.png" />
 	  <None Include="Resources\TX.png" />

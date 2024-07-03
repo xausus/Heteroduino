@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.IO.Ports;
 using System.Linq;
 using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
@@ -22,17 +23,19 @@ namespace Heteroduino
         private List<PointF> nodes;
         private PointF portnametag;
 
+        private bool RX;
+
 
         private bool Tx_led;
 
         public Att_Core(Core component) : base(component)
         {
             comp = component;
-        
+
 
             comp.SerialChangeState += OnSerialChanged;
 
-            comp.Jump += (o, e) => { TX_State = true; };
+            comp.Jump += () => { TX_State = true; };
         }
 
 
@@ -57,13 +60,12 @@ namespace Heteroduino
         }
 
 
-        private void OnSerialChanged(object sender, Core.TT e)
+        private void OnSerialChanged(SerialPort serial,bool state)
         {
-            enable = e.State;
+            enable = state;
             ExpireLayout();
         }
 
-        private bool RX;
         protected override void Layout()
         {
             RX = comp.Rx_led && enable && !comp.Locked;

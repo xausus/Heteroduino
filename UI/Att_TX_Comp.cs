@@ -86,7 +86,6 @@ namespace Heteroduino
             if (channel == GH_CanvasChannel.Wires )
             {
                 base.Render(canvas, graphics, channel);
-             
                 if (comp.CoreBase == null) return;
                 _txPairGrip = new PointF(this.Bounds.X + Bounds.Width / 2, Bounds.Y );
                 var rectangle1 = GH_Convert.ToRectangle(comp.CoreBase.Attributes.Bounds);
@@ -124,6 +123,7 @@ namespace Heteroduino
                 return base.RespondToMouseDoubleClick(sender, e);
             comp.RefreshSrources();
             comp.ExpireSolution(true);
+            ExpireLayout();
             return GH_ObjectResponse.Release;
         }
     }

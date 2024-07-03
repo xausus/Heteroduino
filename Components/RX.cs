@@ -57,7 +57,7 @@ namespace Heteroduino
         {
             pManager.Register_IntegerParam("Analog", "A", "All analog data receiving from Arduino", GH_ParamAccess.list);
             pManager.Register_BooleanParam("Digital", "D", "Digital data receiving from Input pins" +
-                                                           "\n2,4,7 in Arduino-Uno or \n22,23,24,25,26,27,28,29,30,31 in Arduino-Mega ",
+                                                           "\n2,4,7 in Arduino-Uno or \n22,23,24,25,26,27,28,29,30,31 in Arduino-Board_Type ",
                 GH_ParamAccess.list);
             pManager.Register_IntegerParam("Sonar", "S",
                 "Distance by ultrasonic sensors connected to digital input pins", GH_ParamAccess.list);

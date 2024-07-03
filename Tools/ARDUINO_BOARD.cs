@@ -11,22 +11,28 @@ using Grasshopper;
 
 namespace Heteroduino
 {
-    public class ARDUINO_BOARD
-    {
-        public enum BoardType
+
+
+    public enum BoardType
         {
             NAN,
             Uno,
             Mega,
             Due
-
         }
+
+    public class ARDUINO_BOARD
+    {
+        public static BoardType LastBoard = BoardType.Uno;
+
+    
 
         private Dictionary<string, BoardType> boards = Extensions.GetDictionary<BoardType>();
 
         const string SerialPortToFind = "Arduino"; // Change this to your desired device name
 
         public static List<ARDUINO_BOARD> Bank = new List<ARDUINO_BOARD>();
+        public static bool HiddenDisplay => Properties.Settings.Default.hidden_ports;
 
         public override string ToString()
       => $"{Port}: {Name}";
@@ -52,22 +58,21 @@ namespace Heteroduino
             
         }
 
+        public bool Undefined => TYPE == BoardType.NAN;
+
         public static bool Update()
         {
+           
             Bank.Clear();
            var AvailablePorts = SerialPort.GetPortNames().ToList();
             using (var entitySearcher = new ManagementObjectSearcher(
                        "SELECT * FROM WIN32_SerialPort"))
             {
-    
-
                 foreach (var entity in entitySearcher.Get())
                 {
                     try
                     {
-
                         var t = new ARDUINO_BOARD(entity);
-                        if(!t.Name.StartsWith("Arduino")) continue;
                         t.Index=AvailablePorts.IndexOf(t.Port);
                         t.Detect();
                             Bank.Add(t);
@@ -80,14 +85,15 @@ namespace Heteroduino
                 // Now you can use the deviceId to find the corresponding COM port using MSSerial_PortName
                 // ...
             }
-
             return true;
         }
 
         private void Detect()
         {
-            TYPE = boards.FirstOrDefault(i => Name.Contains(i.Key)).Value;
-
+            TYPE = Name.StartsWith("Arduino")?
+                boards.FirstOrDefault(i => 
+                    Name.Contains(i.Key)).Value:BoardType.NAN;
         }
+
     }
 }

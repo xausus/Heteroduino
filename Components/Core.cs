@@ -18,13 +18,14 @@ namespace Heteroduino
 {
     public class Core : HetroBase_Component
     {
+        private static readonly BoardType[] Megalike = new[] { BoardType.Mega, BoardType.Due };
+
         readonly Interval normalrate = new Interval(50, 100);
         private readonly List<int> speedbank = new List<int>() { 1000, 500, 250, 100, 50, 35, 20 };
         public string __version = "-";
         private ARDUINO_BOARD _activeBoard;
 
 
-        private bool? _megamode;
 
 
         private bool? _puremode;
@@ -32,23 +33,23 @@ namespace Heteroduino
         private int _timingMode = -1;
 
 
-
-
         public PointF baraks;
         char[] cats = new char[] { 'R', 'M', 'S', 'E' };
 
 
-     
         public int Index;
         string[] lastcommand = new string[] { "", "", "", "", "" };
 
         List<string> outrx = new List<string>();
+
+        public bool Rx_led;
         public SerialPort serial;
         int[] spds = { -1, 500, 100, 35 };
         private string stack = "";
 
         public List<int> SteppersMessage = new List<int>();
         List<string> TXout = new List<string>();
+        private BoardType _arduinoType;
 
         public Core()
             : base("Heteroduino Core", "Core.Heteroduino",
@@ -56,7 +57,6 @@ namespace Heteroduino
                 "and the other components. It's also equipped with RX output,the row data receiving from arduino." +
                 " \n \n-Zoom and click to refresh RX while the engine is off\n-Double-Click to reset the port settings")
         {
-
         }
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
@@ -110,21 +110,7 @@ namespace Heteroduino
         }
 
 
-        private readonly ARDUINO_BOARD.BoardType[] Megalike = new[]
-            { ARDUINO_BOARD.BoardType.Mega, ARDUINO_BOARD.BoardType.Due };
-
-
-
-
-        public bool MegaMode
-        {
-            get => _megamode ??= this.GetValue("megamode", false);
-            set
-            {
-                _megamode = value;
-                SetValue("megamode", value);
-            }
-        }
+    
 
         public bool PureMode
         {
@@ -144,13 +130,13 @@ namespace Heteroduino
                 if (value == _activeBoard) return;
                 _activeBoard = value;
                 CloseSerial();
-
+          
+                  
                 if (value == null)
                 {
                     _activeBoard = null;
                     MegaMode = false;
                     serial = null;
-
                 }
                 else
                 {
@@ -158,15 +144,15 @@ namespace Heteroduino
                     MegaMode = Megalike.Contains(value.TYPE);
                     OpenSerial();
                 }
-
             }
         }
 
-        public bool Rx_led;
+        public bool MegaMode { get; set; }
+
+        public TX Rx { get; set; }
 
         bool OpenSerial()
         {
-
             if (ActiveBoard == null) return false;
 
             if (serial != null && serial.PortName != ActiveBoard.Port)
@@ -174,12 +160,13 @@ namespace Heteroduino
                 serial.Dispose();
                 serial = null;
             }
+
             try
             {
                 if (serial == null)
                     serial = new SerialPort(ActiveBoard.Port, GetValue("baudrate", 9600));
                 serial.Open();
-                SerialChangeState.Invoke(serial, new TT(true));
+                SerialChangeState.Invoke(serial, true);
                 return true;
             }
             catch (Exception e)
@@ -190,27 +177,16 @@ namespace Heteroduino
             }
         }
 
-        public event EventHandler<TT> SerialChangeState;
+        public event Action<SerialPort, bool> SerialChangeState;
 
         void CloseSerial()
         {
             if (serial != null && serial.IsOpen)
             {
                 serial.Close();
-                SerialChangeState.Invoke(serial, new TT(false));
+                SerialChangeState.Invoke(serial,false);
             }
         }
-
-       public class TT:EventArgs
-        {
-            public bool State;
-
-            public TT(bool state)
-            {
-                State = state;
-            }
-        }
-
 
 
         public void Resetports()
@@ -265,11 +241,19 @@ namespace Heteroduino
             Menu_AppendItem(menu, "Purify Rx",
                 Pureseter, true, GetValue("pure", true)).ToolTipText = "Filtering excess data";
             Menu_AppendSeparator(menu);
+            Menu_AppendItem(menu, "Refresh Ports !", (o, i) => ARDUINO_BOARD.Update(), true, false);
 
+            if (ActiveBoard == null || ActiveBoard.Undefined)
+            {
 
-            Menu_AppendItem(menu, "No-Port", ChooseBoard, true, ActiveBoard == null);
+                var pinset = Menu_AppendItem(menu, "Arduino Board >>").DropDown;
+                foreach (var s in Extensions.GetEnumArray<BoardType>().Skip(1))
+                    Menu_AppendItem(pinset, s.ToString(), changeBoardType, true, s == Arduino_Type);
+               
+            }
 
-
+ Menu_AppendSeparator(menu);
+                Menu_AppendItem(menu, "No-Port", ChooseBoard, true, ActiveBoard == null);
             foreach (var s in ARDUINO_BOARD.Bank)
                 try
                 {
@@ -316,6 +300,35 @@ namespace Heteroduino
             //    ActiveBoard =(n<0)? ARDUINO_BOARD.Bank.First(): ARDUINO_BOARD.Bank[n];
         }
 
+        private void changeBoardType(object sender, EventArgs e)
+        {
+
+            if (Enum.TryParse(sender.ToString(), out BoardType b))
+            {
+                if (b == Arduino_Type) return;
+                RecordUndoEvent("Change to " + b);
+                Arduino_Type= b;
+                ExpireSolution(true);
+            }
+        }
+
+
+        public BoardType Arduino_Type
+        {
+            get => _arduinoType;
+            set
+            {
+                if(_arduinoType == value) return;
+                _arduinoType = value;
+                MegaMode = value == BoardType.Mega || value == BoardType.Due;
+                BoardTypeChanged.Invoke(value);
+
+            }
+        }
+
+          
+
+
 
         private void BoardSetter(object sender, EventArgs e)
         {
@@ -327,21 +340,10 @@ namespace Heteroduino
             PureMode = !PureMode;
         }
 
-        private void Megaseter(object sender, EventArgs e)
-        {
-            RecordUndoEvent("megamod");
-            MegaMode = !MegaMode;
-            ExpireSolution(true);
-        }
+   
 
-
-        public event EventHandler Jump;
-
-
-        public void TxBlink()
-        {
-            Jump?.Invoke(this, new EventArgs());
-        }
+        public event Action Jump;
+        public void TxBlink() => Jump?.Invoke();
 
 
         private void boud_Clicked(object sender, EventArgs e)
@@ -356,7 +358,6 @@ namespace Heteroduino
 
         private void ChooseBoard(object sender, EventArgs e)
         {
-
             ActiveBoard = (sender as ToolStripMenuItem).Tag as ARDUINO_BOARD;
             ExpireSolution(true);
         }
@@ -407,10 +408,8 @@ namespace Heteroduino
         /// <param name="DA"></param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-
-
-       Rx_led=!Rx_led;
-        var temp = new List<string>();
+            Rx_led = !Rx_led;
+            var temp = new List<string>();
             temp.AddRange(SteppersMessage.Select(i => i.ToString()));
             if (serial != null && serial.IsOpen)
                 DA.SetDataList(0, PureMode ? Pure_Rx : Rxs);
@@ -425,5 +424,16 @@ namespace Heteroduino
         public override void RemovedFromDocument(GH_Document document) => CloseSerial();
         public override void DocumentContextChanged(GH_Document document, GH_DocumentContext context) => CloseSerial();
         public override void CreateAttributes() => m_attributes = new Att_Core(this);
+        public event Action<BoardType> BoardTypeChanged;
+
+        public class TT : EventArgs
+        {
+            public bool State;
+
+            public TT(bool state)
+            {
+                State = state;
+            }
+        }
     }
 }

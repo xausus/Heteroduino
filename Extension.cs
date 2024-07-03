@@ -32,6 +32,19 @@ namespace Heteroduino
                 => next.value < min.value ? next : min).index;
 
 
+
+
+
+        public static T MinItem<T,K>(this IEnumerable<T> a, Func<T, K> f) where K:IComparable=>
+            a.Select((v, i) => new { value = f(v), item = v }).Aggregate((min, next)
+                => next.value.CompareTo(min.value)==-1  ? next : min).item;
+        public static T MaxItem<T, K>(this IEnumerable<T> a, Func<T, K> f) where K : IComparable =>
+            a.Select((v, i) => new { value = f(v), item = v }).Aggregate((max, next)
+                => next.value.CompareTo(max.value) == 1 ? next : max).item;
+
+
+
+
         public static string ToStringChain<T>(this IEnumerable<T> a)
         {
             return string.Join("|", a);
@@ -44,6 +57,7 @@ namespace Heteroduino
         public static string ToStringChain<T, G>(this IEnumerable<T> a, Func<T, G> k) => string.Join("|", a.Select(k));
 
         public static string[] GetNames<T>() => Enum.GetNames(typeof(T)).Select(i => i.Replace("_", " ")).ToArray();
+        public static T[] GetEnumArray<T>() => Enum.GetValues(typeof(T)) as T[];// .Cast<T>().ToArray();
 
         public static Dictionary<string, T> GetDictionary<T>() =>
             Enum.GetValues(typeof(T)).Cast<T>().ToDictionary(i => i.ToString(), i => i);

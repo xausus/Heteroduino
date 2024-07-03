@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 using Heteroduino.Properties;
+using static Heteroduino.ARDUINO_BOARD;
+
 // ReSharper disable All
 
 
@@ -15,7 +17,7 @@ using Heteroduino.Properties;
 
 namespace Heteroduino
 {
-    public class StepperCommander : M_Components
+    public class StepperCommander : M_Components,IArduinoController
     {
         public static readonly int[] Stri = {3, 5, 6, 8, 9, 10, 11, 12};
 
@@ -25,7 +27,6 @@ namespace Heteroduino
              => $"PIN: S {38+i*2}->{39+i*2} D";
 
 
-        
         public override bool AppendMenuItems(ToolStripDropDown menu)
         {
 
@@ -35,7 +36,7 @@ namespace Heteroduino
             var pin = GetValue("pin", -1);
             Menu_AppendItem(menu, "Release Motor", Pinevent, true, pin == -1);
 
-            if(GetValue(MegaStr,false))
+            if(isNonUno)
                 for (int i = 0; i < 8; i++)
                     Menu_AppendItem(menu, MegaPinNames(i), Pinevent, true, pin == i );
             else
@@ -43,14 +44,11 @@ namespace Heteroduino
                 Menu_AppendItem(menu,UnoPinNames(i), Pinevent, true, pin == i );
 
             Menu_AppendSeparator(menu);
-    
-            Menu_AppendItem(menu, "Mega Board", Megaswitch, true, GetValue(MegaStr, false));
-            Menu_AppendSeparator(menu);
             Menu_AppendObjectHelp(menu);
             return true;
         }
-      
 
+      
   
 
         readonly List< string > accmodes=new List<string> {"Constant Speed" ,"Low Acceleration", "Lax Acceleration", "Normal Acceleration", "Strong Acceleration" ,"Idle Acceleration"};
@@ -77,7 +75,7 @@ namespace Heteroduino
             int pin = GetValue("pin", -1);
             if(pin==-1)return;
              var command = "%" + StepperState.Remove(pin).ToString("X8");
-            Tools. ToArduino(command,doc);
+            Tools. ToArduino(command,document);
  base.RemovedFromDocument(document);
         }
 
@@ -127,13 +125,29 @@ namespace Heteroduino
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddIntegerParameter("Stepper Commands", "SM",
+        var j=    pManager.AddIntegerParameter("Stepper Commands", "SM",
                 "List of stepper motor commands by one motor", GH_ParamAccess.list);
+        
         }
 
-        
+
+   
 
         private int removedpin = -1;
+
+
+        public int Pin
+        {
+            get => _pin??GetValue("pin", -1);
+            private set
+            {
+                _pin = value;
+                SetValue("pin", value);
+            }
+        }
+
+        public int ACC;
+       
         protected override void SolveInstance(IGH_DataAccess DA)
         {
      //  if(Neo) Doubleclick();
@@ -148,23 +162,18 @@ namespace Heteroduino
             }
              
             var rs = false;
-            var pin = GetValue("pin", -1);
-            if (pin == -1) return;
-            bool mega=GetValue(MegaStr,false);
-            var acc = 0;
-            DA.GetData("Acceleration", ref acc);
-            if (acc > 5)
+            if (Pin == -1) return;
+
+    
+            DA.GetData("Acceleration", ref ACC);
+            if (ACC > 5)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                     "Undefined Acceleration Mode");
+                ACC = 0;
                 return;
             }
-            var pintex =mega?
- $"Stp:[{38+pin*2}]  Dir:[{39+pin*2}]\n{accmodes[acc]}"
-               : $"Stp:[{Stri[pin*2]}]  Dir:[{Stri[pin*2+1 ]}]\n{accmodes[acc]}";
-              
-
-            Message =pintex;
+          Show();
            
                 var pos = 0;
                 DA.GetData(0, ref pos);
@@ -177,12 +186,28 @@ namespace Heteroduino
             }
 
 
-            if (DA.GetData("Reset", ref rs) && rs) acc = 6;
-          MOTOR=new StepperState(pin, pos, spd, acc);
+            if (DA.GetData("Reset", ref rs) && rs) ACC = 6;
+          MOTOR=new StepperState(Pin, pos, spd, ACC);
             DA.SetData(0, MOTOR.Code);
             
         }
         StepperState MOTOR;
+        private int? _pin;
 
-  }
+        void Show()
+        {
+            var pintex = isNonUno ?
+                $"Stp:[{38 + Pin * 2}]  Dir:[{39 + Pin * 2}]\n{accmodes[ACC]}"
+                : $"Stp:[{Stri[Pin * 2]}]  Dir:[{Stri[Pin * 2 + 1]}]\n{accmodes[ACC]}";
+
+            Message = pintex;
+        }
+
+        public void OnChangeBoard(BoardType board)
+        {
+            isNonUno = board != BoardType.Uno;
+            if (!isNonUno) Pin %= 4;
+          Show();
+        }
+    }
 }
