@@ -61,6 +61,9 @@ namespace Heteroduino
         public  bool CheckMode(int mod) => mod != 1 || ToString()[0]=='~';
 
         public static bool CheckUnoMode(int mod,int pin) => mod != 1 ||  UnoPins[pin][0]=='~';
+
+        public TargetState Updated(BoardType board) => new TargetState(Pin, board);
+        public TargetState Updated(int pin) => new TargetState(pin, Board_Type);
     }
 
 

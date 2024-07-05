@@ -41,12 +41,6 @@ namespace Heteroduino
               Reciever.RemoveAllSources(); Reciever.AddSource(r);
         }
 
-        public static bool checkmegatx(GH_Component comp)
-        {
-            var rc = comp.Params.Output[0].Recipients ;
-            return rc.Count > 0 && ((TX)rc[0].Attributes.Parent.DocObject)?.Megaset == true;
-        }
-     
 
 
 

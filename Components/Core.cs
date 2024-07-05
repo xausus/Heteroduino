@@ -49,7 +49,7 @@ namespace Heteroduino
 
         public List<int> SteppersMessage = new List<int>();
         List<string> TXout = new List<string>();
-        private BoardType _arduinoType;
+        private BoardType _arduinoBoardType;
 
         public Core()
             : base("Heteroduino Core", "Core.Heteroduino",
@@ -135,19 +135,17 @@ namespace Heteroduino
                 if (value == null)
                 {
                     _activeBoard = null;
-                    MegaMode = false;
                     serial = null;
                 }
                 else
                 {
                     _activeBoard = value;
-                    MegaMode = Megalike.Contains(value.TYPE);
                     OpenSerial();
                 }
             }
         }
 
-        public bool MegaMode { get; set; }
+        public bool MegaMode { get;private set; }
 
         public TX Rx { get; set; }
 
@@ -234,12 +232,9 @@ namespace Heteroduino
             //     Menu_AppendItem(m, name,
             //         BoardSetter, true, cb == name);
 
-            Menu_AppendItem(menu, "Auto-Detect Board!!",
-                (o, e) => Refresh(),
-                true, false);
+           // Menu_AppendItem(menu, "Auto-Detect Board!!", (o, e) => Refresh(), true, false);
+            Menu_AppendItem(menu, "Purify Rx", Pureseter, true, GetValue("pure", true)).ToolTipText = "Filtering excess data";
 
-            Menu_AppendItem(menu, "Purify Rx",
-                Pureseter, true, GetValue("pure", true)).ToolTipText = "Filtering excess data";
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Refresh Ports !", (o, i) => ARDUINO_BOARD.Update(), true, false);
 
@@ -248,7 +243,7 @@ namespace Heteroduino
 
                 var pinset = Menu_AppendItem(menu, "Arduino Board >>").DropDown;
                 foreach (var s in Extensions.GetEnumArray<BoardType>().Skip(1))
-                    Menu_AppendItem(pinset, s.ToString(), changeBoardType, true, s == Arduino_Type);
+                    Menu_AppendItem(pinset, s.ToString(), changeBoardType, true, s == ArduinoBoardType);
                
             }
 
@@ -302,27 +297,27 @@ namespace Heteroduino
 
         private void changeBoardType(object sender, EventArgs e)
         {
-
-            if (Enum.TryParse(sender.ToString(), out BoardType b))
+             
+            if (Enum.TryParse(sender.ToString(), out BoardType newboard))
             {
-                if (b == Arduino_Type) return;
-                RecordUndoEvent("Change to " + b);
-                Arduino_Type= b;
-                ExpireSolution(true);
+                if (newboard == ArduinoBoardType) return;
+                ArduinoBoardType= newboard;
+                ExpireSolution(true);    
             }
+
         }
 
 
-        public BoardType Arduino_Type
+        public BoardType ArduinoBoardType
         {
-            get => _arduinoType;
+            get => _arduinoBoardType;
             set
             {
-                if(_arduinoType == value) return;
-                _arduinoType = value;
+                if(_arduinoBoardType == value) return;
+                _arduinoBoardType = value;
                 MegaMode = value == BoardType.Mega || value == BoardType.Due;
                 BoardTypeChanged.Invoke(value);
-
+                this.Attributes.ExpireLayout();
             }
         }
 

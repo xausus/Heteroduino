@@ -19,17 +19,21 @@ namespace Heteroduino
 {
 
 
-    class PMO<T> : Param_Integer where T : GH_Component, IArduinoController, new()
+    class ParamSmartInteger<T> : Param_Integer where T : GH_Component, IArduinoController, new()
     {
-
+        private TX Owner() => Attributes.Parent.DocObject as TX;
 
         void editSource(IGH_Param s, bool add)
         {
             try
             {
                 var q = s.Attributes.Parent.DocObject as IArduinoController;
-                var owner = this.Attributes.Parent.DocObject as IArduinoBoardAware;
-                if (add) owner.AddChild(q);
+                var owner = Owner();
+                if (add)
+                {
+                    owner.AddChild(q);
+                    q.OnChangeBoard(Owner().CoreBase?.ArduinoBoardType ?? BoardType.NAN);
+                }
                 else owner.RemoveChild(q);
 
             }
@@ -89,6 +93,7 @@ namespace Heteroduino
         void EnsureChildren(List<IArduinoController> newlist);
         void AddChild(IArduinoController arduinoController);
         void RemoveChild(IArduinoController arduinoController);
+      
     }
 
     public class TX : HetroBase_Component, IArduinoBoardAware
@@ -181,16 +186,17 @@ namespace Heteroduino
         {
             
             Children.ForEach(i => i.OnChangeBoard(board));
-            ExpireSolution(true);
+          //  Message = CoreBase?.ArduinoBoardType.ToString() ?? "-";
+            
 
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new PMO<CC>(), "PIN Commands", "CC", "Predefined commands by Heteroduino firmata",
+            pManager.AddParameter(new ParamSmartInteger<CC>(), "PIN Commands", "CC", "Predefined commands by Heteroduino firmata",
                 GH_ParamAccess.list);
 
-            var q = new PMO<StepperCommander>();
+            var q = new ParamSmartInteger<StepperCommander>();
 
             pManager.AddParameter(q, "Stepper Motor Commands", "SM", "Commands to control stepper motor",
                    GH_ParamAccess.list);
@@ -210,12 +216,13 @@ namespace Heteroduino
             var sonarset = pManager[x] as Param_Integer;
             sonarset.AddNamedValue("No Ultrasonic Sensor", 0);
 
-            var maxsonar = Megaset ? 8 : 3;
+            var megaset = CoreBase is { MegaMode: true };
+            var maxsonar = megaset? 8 : 3;
             for (var i = 0; i < maxsonar; i++)
-                sonarset.AddNamedValue($"{sonartags[i]}  Sonar [+PIN: {(Megaset ? i + 22 : DigiUno[i])}]", i + 1);
+                sonarset.AddNamedValue($"{sonartags[i]}  Sonar [+PIN: {(megaset ? i + 22 : DigiUno[i])}]", i + 1);
         }
 
-        public bool Megaset => CoreBase?.MegaMode == true;
+    
 
 
         public override bool AppendMenuItems(ToolStripDropDown menu)
@@ -304,7 +311,7 @@ namespace Heteroduino
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            Message =CoreBase?.Arduino_Type.ToString()??"-";
+         //   Message =CoreBase?.ArduinoBoardType.ToString()??"-";
             var cc_in = new List<int>();
 
             ///     if(IGHCore!=null)   InvokeSetterSafe(IGHCore, "PairTag", this.NickName);
@@ -341,7 +348,7 @@ namespace Heteroduino
 
             //==============================================Sonar===========================================
             var sn = 0;
-            var maxsonar = Megaset ? 8 : 3;
+            var maxsonar = CoreBase is {MegaMode:true} ? 8 : 3;
             if (DA.GetData(2, ref sn))
             {
 
@@ -430,7 +437,8 @@ namespace Heteroduino
         public void AddChild(IArduinoController a) => Children.Add(a);
 
         public void RemoveChild(IArduinoController a) => Children.Remove(a);
-
+       
+        
     }
 
 }
