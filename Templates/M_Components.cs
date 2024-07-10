@@ -30,7 +30,7 @@ namespace Heteroduino
                 
  }
 
-        protected bool isNonUno ;
+        protected bool IsMegaStyle ;
 
        
 

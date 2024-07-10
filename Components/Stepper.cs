@@ -70,15 +70,13 @@ namespace Heteroduino
 
         public void OnChangeBoard(BoardType board)
         {
-            isNonUno = board != BoardType.Uno;
-            if (!isNonUno) Pin %= 4;
+         var m=board != BoardType.Uno;
+         if(m==IsMegaStyle)return;
+         IsMegaStyle = m;
+            if (!m) Pin %= 4;
             Show();
         }
-
-        public void SetArduinoType(BoardType board)
-        {
-
-        }
+        
 
         string UnoPinNames(int i)
             => $"PIN: {Stri[i * 2]:S 00->}{Stri[1 + i * 2]:00 D}";
@@ -95,7 +93,7 @@ namespace Heteroduino
             var pin = GetValue("pin", -1);
             Menu_AppendItem(menu, "Release Motor", Pinevent, true, pin == -1);
 
-            if (isNonUno)
+            if (IsMegaStyle)
                 for (int i = 0; i < 8; i++)
                     Menu_AppendItem(menu, MegaPinNames(i), Pinevent, true, pin == i);
             else
@@ -209,7 +207,7 @@ namespace Heteroduino
 
         void Show()
         {
-            var pintex = isNonUno
+            var pintex = IsMegaStyle
                 ? $"Stp:[{38 + Pin * 2}]  Dir:[{39 + Pin * 2}]\n{accmodes[ACC]}"
                 : $"Stp:[{Stri[Pin * 2]}]  Dir:[{Stri[Pin * 2 + 1]}]\n{accmodes[ACC]}";
 

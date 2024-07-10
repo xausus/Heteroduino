@@ -140,7 +140,10 @@ namespace Heteroduino
                 else
                 {
                     _activeBoard = value;
+                    ArduinoBoardType = value.TYPE;
                     OpenSerial();
+                    ExpireSolution(true);
+
                 }
             }
         }
@@ -243,16 +246,16 @@ namespace Heteroduino
 
                 var pinset = Menu_AppendItem(menu, "Arduino Board >>").DropDown;
                 foreach (var s in Extensions.GetEnumArray<BoardType>().Skip(1))
-                    Menu_AppendItem(pinset, s.ToString(), changeBoardType, true, s == ArduinoBoardType);
+                    Menu_AppendItem(pinset, s.ToString(), changeBoardType_callback, true, s == ArduinoBoardType);
                
             }
 
  Menu_AppendSeparator(menu);
-                Menu_AppendItem(menu, "No-Port", ChooseBoard, true, ActiveBoard == null);
+                Menu_AppendItem(menu, "No-Port", ChooseBoard_callback, true, ActiveBoard == null);
             foreach (var s in ARDUINO_BOARD.Bank)
                 try
                 {
-                    Menu_AppendItem(menu, s.Fullname, ChooseBoard,
+                    Menu_AppendItem(menu, s.Fullname, ChooseBoard_callback,
                         true, ActiveBoard?.Port == s.Port).Tag = s;
                 }
                 catch (Exception)
@@ -261,7 +264,7 @@ namespace Heteroduino
                 }
 
             Menu_AppendSeparator(menu);
-            Menu_AppendItem(menu, "Self-Engine off", spdclick, true,
+            Menu_AppendItem(menu, "Self-Engine off", spdclick_callback, true,
                 TimingMode == -1);
 
             var rundrop = Menu_AppendItem(menu, "Running", null, true,
@@ -274,7 +277,7 @@ namespace Heteroduino
                     : i < normalrate.T0
                         ? "Fast"
                         : "Slow";
-                Menu_AppendItem(rundrop, $"{prefix} ({i}ms)", spdclick, true,
+                Menu_AppendItem(rundrop, $"{prefix} ({i}ms)", spdclick_callback, true,
                     TimingMode == index);
             }
 
@@ -295,7 +298,7 @@ namespace Heteroduino
             //    ActiveBoard =(n<0)? ARDUINO_BOARD.Bank.First(): ARDUINO_BOARD.Bank[n];
         }
 
-        private void changeBoardType(object sender, EventArgs e)
+        private void changeBoardType_callback(object sender, EventArgs e)
         {
              
             if (Enum.TryParse(sender.ToString(), out BoardType newboard))
@@ -351,14 +354,11 @@ namespace Heteroduino
         }
 
 
-        private void ChooseBoard(object sender, EventArgs e)
-        {
+        private void ChooseBoard_callback(object sender, EventArgs e) => 
             ActiveBoard = (sender as ToolStripMenuItem).Tag as ARDUINO_BOARD;
-            ExpireSolution(true);
-        }
 
 
-        private void spdclick(object sender, EventArgs e)
+        private void spdclick_callback(object sender, EventArgs e)
         {
             var tc = sender.ToString();
             if (tc == "Self-Engine off")

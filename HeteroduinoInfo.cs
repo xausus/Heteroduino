@@ -23,6 +23,6 @@ namespace Heteroduino
             //Return a string representing your preferred contact details.
             "Helioripple@gmail.com ";
 
-        public override string Version => "3.1.4";
+        public override string Version => "3.1.5";
     }
 }

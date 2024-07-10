@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static Heteroduino.ARDUINO_BOARD;
 
@@ -11,24 +12,26 @@ namespace Heteroduino
         public TargetState(int pin, BoardType boardType)
         {
 
-            int validpid = (boardType == BoardType.Uno ?UnoPins.Length: Megapins.Length  ) - 1;
-            Pin = Math.Min(pin, validpid);
+            
+            int validpid = PINS[boardType].Length - 1;
+            Pin = pin % validpid;
             Board_Type = boardType;
         }
 
+        public static readonly Dictionary<BoardType, string[]> PINS = new Dictionary<BoardType, string[]>()
+        {
+            { BoardType.Uno, UnoPins }, { BoardType.Mega, Megapins }, { BoardType.Due, Duopins }
+        };
 
 
         public TargetState(string pinname, BoardType pinBoardType)
         {
             Board_Type= pinBoardType;
-            var isNotUno = pinBoardType != BoardType.Uno;
-
-            int validpid = (isNotUno? Megapins.Length : UnoPins.Length) - 1;
-            var q = (isNotUno ? Megapins : UnoPins).ToList();
+            var IsMegaStyle = pinBoardType != BoardType.Uno;
+            var q = PINS[pinBoardType].ToList();
             var i = q.IndexOf(pinname);
             if (i == -1) i = 0;
-            Pin =Math.Min(i,validpid);
-               
+            Pin =i;
         }
 
 
@@ -54,6 +57,8 @@ namespace Heteroduino
 
         public readonly BoardType Board_Type;
         public readonly int Pin;
+        
+        
 
           
 

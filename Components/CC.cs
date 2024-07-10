@@ -25,7 +25,7 @@ namespace Heteroduino
         private TargetState _target;
 
         int MOD = 0;
-
+        
 
         /// <summary>
         ///     Initializes a new instance of the CreateComman class.
@@ -66,12 +66,11 @@ namespace Heteroduino
 
         public void OnChangeBoard(BoardType board)
         {
-            if (board == BoardType.Uno && Target.Board_Type != BoardType.Uno)
-                Target = new TargetState(Target.Pin % TargetState.UnoPins.Length, BoardType.Uno);
-            else
+            if (board != Target.Board_Type)
+            {
                 Target = new TargetState(Target.Pin, board);
-
-            Show();
+                Show();
+            }
         }
 
         public void SetArduinoType(BoardType board)

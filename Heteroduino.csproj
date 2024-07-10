@@ -5,6 +5,7 @@
 		<Description>Description of GHoreus</Description>
 		<TargetExt>.gha</TargetExt>
 		<LangVersion>8</LangVersion>
+		<Nullable>enable</Nullable>
 
 	</PropertyGroup>
 
