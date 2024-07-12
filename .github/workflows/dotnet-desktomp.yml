@@ -9,7 +9,7 @@ jobs:
       - name: Setup .NET 4.8
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '4.8.x'
+          dotnet-version: '4.8.2'
       - name: Display .NET version
         run: dotnet --version
       # Add other build and run steps here
